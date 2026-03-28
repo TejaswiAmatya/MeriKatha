@@ -12,6 +12,13 @@
     "resolveJsonModule": true,
     "types": ["node"]
   },
-  "include": ["prisma.config.ts", "src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "prisma.config.ts",
+    "index.ts",
+    "controllers/**/*",
+    "routes/**/*",
+    "schema/**/*",
+    "lib/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "generated"]
 }
