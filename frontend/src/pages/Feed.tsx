@@ -61,8 +61,8 @@ export function Feed() {
         return
       }
 
-      // Check for flags (clinical language warning)
-      if (data.data.flags?.includes('clinical_language')) {
+      // Check for flags (clinical language warning) — flags is at root level
+      if (data.flags?.includes('clinical_language')) {
         setFlagWarning(
           'Tapaaiko kura suneko chha. Yaha hami clinical shabda bhanda mann ko bhasa maa bolchhau — tara tapaaiko feelings valid chhan.'
         )

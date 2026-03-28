@@ -207,7 +207,7 @@ export function Landing() {
           </button>
 
           <Link
-            to="/feed"
+            to="/stories"
             className="bg-ink text-pageBg rounded-full px-4 py-1.5 text-xs font-semibold font-sans hover:opacity-90 transition-opacity flex items-center gap-1.5"
           >
             <span className="w-1.5 h-1.5 bg-sindoor rounded-full animate-pulse shrink-0" />
@@ -248,7 +248,7 @@ export function Landing() {
 
             <div className="mt-8 flex flex-col items-center gap-3">
               <Link
-                to="/feed"
+                to="/stories"
                 className="bg-ink text-pageBg rounded-full px-8 py-3 font-semibold font-sans text-sm inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
               >
                 <span className="w-2 h-2 bg-sindoor rounded-full animate-pulse shrink-0" />
@@ -306,7 +306,7 @@ export function Landing() {
 
                   {/* CTA pill */}
                   <Link
-                    to="/feed"
+                    to="/stories"
                     className={`${f.pillClass} rounded-full px-3 py-1.5 text-[10px] font-semibold font-sans mt-4 inline-block text-center hover:opacity-90 transition-opacity`}
                   >
                     {lang === 'np' ? f.pillText : f.pillTextEn}
