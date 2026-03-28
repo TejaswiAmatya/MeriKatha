@@ -195,7 +195,7 @@ export function Landing() {
     <div className="bg-pageBg min-h-screen font-sans">
 
       {/* ── Topbar ─────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 h-12 bg-pageBg/90 backdrop-blur-sm border-b border-sand flex items-center justify-between px-5 md:px-8">
+      <header className="sticky top-0 z-40 h-12 bg-transparent border-b border-transparent flex items-center justify-between px-5 md:px-8">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-sindoor flex items-center justify-center shrink-0">
             <span className="text-white font-serif font-bold text-sm">छ</span>
@@ -207,7 +207,7 @@ export function Landing() {
           {/* Language toggle */}
           <button
             onClick={toggleLang}
-            className="rounded-full px-3 py-1 text-xs font-semibold font-sans border border-sand text-textMuted hover:border-textMuted hover:text-ink transition-colors"
+            className="rounded-full px-3 py-1 text-xs font-semibold font-sans bg-white/20 backdrop-blur-sm border border-white/40 text-ink hover:bg-white/30 transition-colors"
             aria-label="Switch language"
           >
             {lang === 'np' ? 'EN' : 'नेपाली'}
@@ -227,16 +227,23 @@ export function Landing() {
       <div className={`transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}>
 
         {/* ── Hero ───────────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden">
-          {/* Decorative Dhaka-colored stripes — top-right corner */}
+        <section className="relative overflow-hidden -mt-12 min-h-screen">
+          {/* Full-width cultural background image */}
+          <img
+            src="/assets/diyo.png"
+            alt=""
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+          />
+          {/* Warm cream gradient — fades image into page at bottom, keeps text readable */}
           <div
-            className="absolute top-0 right-0 w-48 h-48 opacity-10 pointer-events-none"
+            className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'repeating-linear-gradient(135deg, #C0392B 0px, #C0392B 8px, #E8A020 8px, #E8A020 16px, #2D6A4F 16px, #2D6A4F 24px, #D4C5A9 24px, #D4C5A9 32px)',
+              background: 'linear-gradient(to bottom, rgba(245,240,230,0.55) 0%, rgba(245,240,230,0.72) 50%, rgba(245,240,230,1) 100%)',
             }}
           />
 
-          <div className="max-w-3xl mx-auto px-5 py-16 md:py-24 text-center relative">
+          <div className="max-w-3xl mx-auto px-5 pt-32 pb-20 md:pt-40 md:pb-28 text-center relative">
             <p className="text-[9px] tracking-widest uppercase text-textMuted font-sans">
               {s.heroOverline}
             </p>
@@ -261,14 +268,11 @@ export function Landing() {
                 <span className="w-2 h-2 bg-sindoor rounded-full animate-pulse shrink-0" />
                 {s.heroCta}
               </button>
-              <p className="text-xs text-textMuted font-sans">
-                {s.heroSubtext}
-              </p>
             </div>
           </div>
         </section>
 
-        <DhakaBand className="mx-5 md:mx-12" />
+        <DhakaBand />
 
         {/* ── Features ───────────────────────────────────────────────── */}
         <section
