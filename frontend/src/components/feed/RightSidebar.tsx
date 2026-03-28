@@ -1,7 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 import { circles } from '../../data/mockStories'
 import { DhakaBand } from '../ui/DhakaBand'
 
 export function RightSidebar() {
+  const navigate = useNavigate()
   return (
     <div className="p-3 flex flex-col gap-3">
       {/* SOS Sahara badge */}
@@ -37,8 +39,11 @@ export function RightSidebar() {
         <div className="bg-feedBg rounded-lg p-2 text-xs text-textBody leading-relaxed">
           "Timro kura sunne manche chhu" 🙏
         </div>
-        <button className="bg-ink text-pageBg rounded-full px-3 py-1 text-[10px] font-semibold mt-2 w-full hover:opacity-90 transition-opacity">
-          Kura gar →
+        <button
+          onClick={() => navigate('/bot')}
+          className="bg-ink text-pageBg rounded-full px-3 py-1 text-[10px] font-semibold mt-2 w-full hover:opacity-90 transition-opacity"
+        >
+          कुरा गर्नुस् →
         </button>
       </div>
 

@@ -9,6 +9,14 @@ const todayCard = wisdomCards[dayOfYear % wisdomCards.length]
 
 const moods = ['☀️', '⛅', '🌫️', '⛈️', '🌧️']
 
+const affirmations = [
+  'Yasto din lai embrace gara, didi. Khushi feel garna thik cha.',
+  'Mixed feelings hunu normal ho. Sab kuch thik huncha.',
+  'Confused feel garna pani ek kism ko bravery ho.',
+  'Yo bhari lageko mann suneko cha. Eklai chaina.',
+  'Yo sadness lai judge nagara. Yahan safe cha.',
+]
+
 function BuwaAamaWisdom() {
   return (
     <div className="bg-maroon rounded-xl p-4">
@@ -49,6 +57,11 @@ function MannKoMausam() {
           </button>
         ))}
       </div>
+      {selected !== null && (
+        <p className="text-[10px] text-white/90 mt-3 leading-relaxed">
+          {affirmations[selected]}
+        </p>
+      )}
     </div>
   )
 }

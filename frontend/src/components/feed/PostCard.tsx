@@ -1,4 +1,6 @@
 import { useState, useRef } from 'react'
+import { doc, updateDoc, increment } from 'firebase/firestore'
+import { db } from '../../lib/firebase'
 import type { Story } from '../../types/feed'
 import { circles, relativeTime } from '../../data/mockStories'
 
@@ -11,12 +13,22 @@ export function PostCard({ story }: { story: Story }) {
   const circle = circles.find((c) => c.id === story.circleId)
   const voteCount = voted ? story.votes + 1 : story.votes
 
-  function handleSunein(e: React.MouseEvent<HTMLButtonElement>) {
+  async function handleSunein(e: React.MouseEvent<HTMLButtonElement>) {
     if (listened) return
     const rect = e.currentTarget.getBoundingClientRect()
     setRipplePos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
     setListened(true)
     setTimeout(() => setRipplePos(null), 500)
+
+    if (story.firestoreId) {
+      try {
+        await updateDoc(doc(db, 'stories', story.firestoreId), {
+          reactions: increment(1),
+        })
+      } catch (err) {
+        console.error('Error incrementing reactions:', err)
+      }
+    }
   }
 
   return (
@@ -88,9 +100,7 @@ export function PostCard({ story }: { story: Story }) {
           ref={btnRef}
           onClick={handleSunein}
           className={`relative overflow-hidden rounded-full px-3 py-1 text-[10px] font-semibold flex items-center gap-1 transition-colors ${
-            listened
-              ? 'bg-ink text-pageBg'
-              : 'bg-ink text-pageBg hover:opacity-90'
+            listened ? 'bg-ink text-pageBg' : 'bg-ink text-pageBg hover:opacity-90'
           }`}
         >
           {ripplePos && (
