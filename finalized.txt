@@ -1,0 +1,123 @@
+Got it! So they're one combined app. Based on all the feedback I gave earlier, here is your exact build order:
+
+---
+
+### 🏗️ Build This — In This Order
+
+---
+
+**HOUR 0–10 — Build These First (Core, Non-Negotiable)**
+
+**1. Meri Katha — Anonymous Story Wall**
+This is your most powerful feature and the heart of the app. Build it first because everything else supports it. Keep it simple:
+- Text input box — no login required
+- Posts appear anonymously
+- One single reaction button — *"Maile Sunein"* (I heard you)
+- No comments, no likes, no counts
+- Seed it with 5-6 realistic stories before the demo
+
+**2. Mann ko Mausam — Mood Check-in**
+Build this second because it's the entry point — the first thing every user sees:
+- 5 weather options — sunny, cloudy, foggy, stormy, fog
+- Devanagari labels + English
+- Simple, visual, no clinical language
+- After selecting mood — shows one gentle affirmation, nothing more
+
+---
+
+**HOUR 10–24 — Build These Second (Impact Features)**
+
+**3. Aangan Bot — AI Companion**
+This is your most technically impressive feature and judges will want to see it live:
+- Integrate Claude API
+- Write a strong Nepali cultural system prompt
+- Must speak in Nepali-English codemix
+- Must never give advice — only validate and witness
+- Must never say depression, trauma, therapy
+- Have 2-3 demo scenarios ready and tested
+
+**4. Diyo Baaln — Light a Virtual Diyo**
+This is your most emotionally unique feature — no other app has it:
+- User lights a virtual diyo on screen
+- Types one intention or fear or prayer
+- It stays private by default
+- Option to release it anonymously to a shared "prayer wall"
+- Beautiful, warm, minimal UI
+
+---
+
+**HOUR 24–36 — Build These Third (Supporting Features)**
+
+**5. Sahara — Resource Map**
+Simple but critical — judges always ask "what happens in a real crisis?":
+- List of real Nepal organizations — WOREC, Saathi Nepal, TPO Nepal, Women's Police Cell 100
+- Diaspora contacts — US, UK, Australia
+- No clinical framing — *"people who can sit with you"*
+- Accessible from every single screen via a small persistent button
+
+**6. Buwa-Aama ko Guff — Daily Wisdom Card**
+Quick to build, high emotional impact in the demo:
+- One wisdom card on the home screen
+- Nepali proverb + modern reframe
+- Changes daily
+- Designed to be screenshot and shared on WhatsApp
+
+---
+
+**HOUR 36–44 — Polish**
+
+**7. Full Visual Polish**
+- Marigold, deep maroon, sage green, warm cream palette throughout
+- Devanagari as primary script everywhere
+- Dhaka textile bands as dividers
+- Himalayan silhouette backgrounds
+- SOS Whisper button — small, discreet, on every screen
+
+---
+
+**HOUR 44–48 — Demo Prep**
+
+**8. Rehearse the 90-second demo flow:**
+- Open app → warm Devanagari welcome
+- Tap *"Stormy"* on Mann ko Mausam → see gentle response
+- Read one Meri Katha story aloud → tap Maile Sunein
+- Open Aangan Bot → type the career pressure scenario → show culturally fluent response
+- Light a Diyo → set an intention
+- Show Buwa-Aama wisdom card
+- Show Sahara screen
+
+---
+
+### ❌ Do NOT Build In 48 Hours
+
+- Didi Circles — too complex, show as mockup only
+- Voice journaling — too risky technically, cut it
+- Sutkeri tracker — mention in pitch as future feature
+- Teej mode — describe it, don't build it
+- Matching algorithm — seed manually
+
+---
+
+### 👥 How To Split The Work
+
+| Person | Task |
+|---|---|
+| Frontend Dev 1 | Meri Katha wall + Maile Sunein |
+| Frontend Dev 2 | Mann ko Mausam + Diyo Baaln |
+| AI/Backend | Aangan Bot system prompt + Claude API |
+| Designer | Full visual system — palette, Devanagari, Dhaka patterns |
+| Content person | Seed stories + Buwa-Aama wisdom cards + Sahara resources |
+
+---
+
+### 🎯 The 3 Features That Will Win You The Hackathon
+
+If you run out of time — make sure these three are perfect:
+
+**1. Meri Katha + Maile Sunein** — most original mechanic
+**2. Aangan Bot** — most technically impressive
+**3. Diyo Baaln** — most emotionally unforgettable
+
+Everything else is supporting these three. 
+
+Want me to now build the actual prototype or write the Aangan Bot system prompt? 🙏
