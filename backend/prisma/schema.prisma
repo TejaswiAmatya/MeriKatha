@@ -15,6 +15,9 @@ datasource db {
 model Story {
   id          String   @id @default(cuid())
   content     String
+  isAnonymous Boolean  @default(true)
+  status      String   @default("APPROVED") // APPROVED | DELETED
+  flagCode    String?                        // CRISIS_CONTENT | ABUSIVE_CONTENT
   suneinCount Int      @default(0)
   createdAt   DateTime @default(now())
 }

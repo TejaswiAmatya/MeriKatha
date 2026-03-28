@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { storySchema } from "../schema/storySchema";
+import { checkStoryContent } from "../src/storyContentCheck";
 
 export const getStories = async (_req: Request, res: Response) => {
   try {
     const stories = await prisma.story.findMany({
+      where: { status: "APPROVED" },
       orderBy: { createdAt: "desc" },
       take: 50,
     });
@@ -29,8 +31,38 @@ export const setStories = async (req: Request, res: Response) => {
   }
 
   try {
-    const story = await prisma.story.create({ data: parsed.data });
-    res.status(201).json({ success: true, data: story });
+    const { content } = parsed.data;
+    const check = checkStoryContent(content);
+
+    if (!check.ok) {
+      await prisma.story.create({
+        data: {
+          ...parsed.data,
+          status: "DELETED",
+          flagCode: check.code,
+        },
+      });
+
+      return res.status(422).json({
+        success: false,
+        data: null,
+        error: check.message,
+        code: check.code,
+        showResources: check.showResources,
+      });
+    }
+
+    const story = await prisma.story.create({
+      data: {
+        ...parsed.data,
+        status: "APPROVED",
+      },
+    });
+    res.status(201).json({
+      success: true,
+      data: story,
+      flags: check.flags,
+    });
   } catch {
     res.status(500).json({
       success: false,
