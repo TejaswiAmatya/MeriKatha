@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(curl -s -c /tmp/cookies.txt -X POST http://localhost:3001/api/auth/signup -H \"Content-Type: application/json\" -d '{\"\"\"\"email\"\"\"\":\"\"\"\"test@mannsathi.com\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"password123\"\"\"\"}')",
+      "Bash(python3 -m json.tool __NEW_LINE_3523dd063d124b58__ echo \"=== ME \\(with cookie\\) ===\")",
+      "Bash(curl -s -b /tmp/cookies.txt http://localhost:3001/api/auth/me)",
+      "Bash(python3 -m json.tool __NEW_LINE_3523dd063d124b58__ echo \"=== LOGOUT ===\")",
+      "Bash(curl -s -b /tmp/cookies.txt -c /tmp/cookies.txt -X POST http://localhost:3001/api/auth/logout)",
+      "Bash(python3 -m json.tool __NEW_LINE_3523dd063d124b58__ echo \"=== ME \\(after logout — should 401\\) ===\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(find /Users/abiralshrestha/Documents/WebDev/Projects/MeriKatha -name prisma-client* -o -name index.js -path */generated/*)",
+      "Bash(find /Users/abiralshrestha/Documents/WebDev/Projects/MeriKatha/backend -name *.js -path */generated/*)",
+      "Bash(npx ts-node -e \":*)"
     ]
   }
 }

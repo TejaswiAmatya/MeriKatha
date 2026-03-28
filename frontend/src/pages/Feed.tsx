@@ -1,96 +1,98 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
-const API = 'http://localhost:3000'
+const API = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 
 type Story = {
-  id: string
-  content: string
-  isAnonymous: boolean
-  createdAt: string
-  flags?: string[]
-}
+  id: string;
+  content: string;
+  isAnonymous: boolean;
+  createdAt: string;
+  flags?: string[];
+};
 
-type FeedStory = Story & { suneinCount: number }
+type FeedStory = Story & { suneinCount: number };
 
 export function Feed() {
-  const [content, setContent] = useState('')
-  const [stories, setStories] = useState<FeedStory[]>([])
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [showResources, setShowResources] = useState(false)
-  const [successMsg, setSuccessMsg] = useState<string | null>(null)
-  const [flagWarning, setFlagWarning] = useState<string | null>(null)
+  const [content, setContent] = useState("");
+  const [stories, setStories] = useState<FeedStory[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showResources, setShowResources] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [flagWarning, setFlagWarning] = useState<string | null>(null);
 
   // Load stories on mount
   useEffect(() => {
-    fetch(`${API}/api/stories`)
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) setStories(res.data)
+    fetch(`${API}/api/stories`, { credentials: "include" })
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success) setStories(res.data);
       })
-      .catch(() => {})
-  }, [])
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
-    setShowResources(false)
-    setSuccessMsg(null)
-    setFlagWarning(null)
+    e.preventDefault();
+    setError(null);
+    setShowResources(false);
+    setSuccessMsg(null);
+    setFlagWarning(null);
 
     if (content.trim().length < 10) {
-      setError('Ali lambo lekhnus na — kamti ma 10 akshar chaincha')
-      return
+      setError("Ali lambo lekhnus na — kamti ma 10 akshar chaincha");
+      return;
     }
 
-    setSubmitting(true)
+    setSubmitting(true);
 
     try {
       const res = await fetch(`${API}/api/stories`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ content, isAnonymous: true }),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (!data.success) {
-        setError(data.error)
-        if (data.showResources) setShowResources(true)
-        return
+        setError(data.error);
+        if (data.showResources) setShowResources(true);
+        return;
       }
 
       // Check for flags (clinical language warning) — flags is at root level
-      if (data.flags?.includes('clinical_language')) {
+      if (data.flags?.includes("clinical_language")) {
         setFlagWarning(
-          'Tapaaiko kura suneko chha. Yaha hami clinical shabda bhanda mann ko bhasa maa bolchhau — tara tapaaiko feelings valid chhan.'
-        )
+          "Tapaaiko kura suneko chha. Yaha hami clinical shabda bhanda mann ko bhasa maa bolchhau — tara tapaaiko feelings valid chhan.",
+        );
       }
 
-      setSuccessMsg('Tapaaiko katha share bhayo — dhanyabad!')
-      setContent('')
+      setSuccessMsg("Tapaaiko katha share bhayo — dhanyabad!");
+      setContent("");
       // Add new story to feed
-      setStories(prev => [{ ...data.data, suneinCount: 0 }, ...prev])
+      setStories((prev) => [{ ...data.data, suneinCount: 0 }, ...prev]);
     } catch {
-      setError('Server sanga connect huna sakena. Feri try garnus.')
+      setError("Server sanga connect huna sakena. Feri try garnus.");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
   async function handleSunein(storyId: string) {
     try {
       const res = await fetch(`${API}/api/stories/${storyId}/sunein`, {
-        method: 'PATCH',
-      })
-      const data = await res.json()
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
       if (data.success) {
-        setStories(prev =>
-          prev.map(s =>
-            s.id === storyId ? { ...s, suneinCount: data.data.suneinCount } : s
-          )
-        )
+        setStories((prev) =>
+          prev.map((s) =>
+            s.id === storyId ? { ...s, suneinCount: data.data.suneinCount } : s,
+          ),
+        );
       }
     } catch {}
   }
@@ -120,7 +122,7 @@ export function Feed() {
           </label>
           <textarea
             value={content}
-            onChange={e => setContent(e.target.value)}
+            onChange={(e) => setContent(e.target.value)}
             placeholder="Aaja mann maa ke chha? Yahaa lekhnus — koi judge gardaina..."
             rows={4}
             maxLength={5000}
@@ -135,7 +137,7 @@ export function Feed() {
               disabled={submitting || content.trim().length < 10}
               className="px-5 py-2 rounded-full bg-himalayan text-white font-sans text-sm font-medium hover:bg-himalayan/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              {submitting ? 'Pathaaudai...' : 'Share garnus'}
+              {submitting ? "Pathaaudai..." : "Share garnus"}
             </button>
           </div>
 
@@ -149,11 +151,19 @@ export function Feed() {
           {/* Crisis resources */}
           {showResources && (
             <div className="mt-3 p-4 rounded-xl bg-peach/50 border border-marigold/30 text-ink text-sm font-sans space-y-2">
-              <p className="font-medium">Sahara chahiyo? Yahaa sampark garnus:</p>
+              <p className="font-medium">
+                Sahara chahiyo? Yahaa sampark garnus:
+              </p>
               <ul className="space-y-1 text-textBody">
-                <li>Saathi Nepal: <strong>01-4268474</strong></li>
-                <li>TPO Nepal: <strong>01-4423596</strong></li>
-                <li>Emergency: <strong>100</strong></li>
+                <li>
+                  Saathi Nepal: <strong>01-4268474</strong>
+                </li>
+                <li>
+                  TPO Nepal: <strong>01-4423596</strong>
+                </li>
+                <li>
+                  Emergency: <strong>100</strong>
+                </li>
               </ul>
               <Link
                 to="/sahara"
@@ -187,7 +197,7 @@ export function Feed() {
             </p>
           )}
 
-          {stories.map(story => (
+          {stories.map((story) => (
             <article
               key={story.id}
               className="bg-cardWhite rounded-2xl p-5 shadow-sm border border-sand/30"
@@ -197,9 +207,9 @@ export function Feed() {
               </p>
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-sand/20">
                 <span className="text-xs text-textMuted">
-                  {new Date(story.createdAt).toLocaleDateString('ne-NP', {
-                    day: 'numeric',
-                    month: 'short',
+                  {new Date(story.createdAt).toLocaleDateString("ne-NP", {
+                    day: "numeric",
+                    month: "short",
                   })}
                 </span>
                 <button
@@ -217,5 +227,5 @@ export function Feed() {
         </div>
       </main>
     </div>
-  )
+  );
 }

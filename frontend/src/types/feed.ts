@@ -13,7 +13,6 @@ export interface Flair {
 
 export interface Story {
   id: string
-  firestoreId?: string
   circleId: string
   title: string
   body: string

@@ -1,14 +1,4 @@
 import { useState, useEffect } from 'react'
-import {
-  collection,
-  query,
-  orderBy,
-  limit,
-  onSnapshot,
-  addDoc,
-  serverTimestamp,
-} from 'firebase/firestore'
-import { db } from '../lib/firebase'
 import type { Story } from '../types/feed'
 import { mockStories } from '../data/mockStories'
 import { Topbar } from '../components/feed/Topbar'
@@ -17,69 +7,59 @@ import { RightSidebar } from '../components/feed/RightSidebar'
 import { FeedList } from '../components/feed/FeedList'
 import { BottomNav } from '../components/feed/BottomNav'
 
-function mapCircle(circle: string): string {
-  const map: Record<string, string> = {
-    NayaAama: 'NayaAama',
-    Pardesh: 'Pardesh',
-    SathiCircle: 'SathiCircle',
-    PadhneBahini: 'PadhneBahini',
+const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
+
+interface ApiStory {
+  id: string
+  content: string
+  suneinCount: number
+  createdAt: string
+}
+
+function mapApiStory(s: ApiStory): Story {
+  return {
+    id: s.id,
+    circleId: 'SathiCircle',
+    title: s.content.length > 60 ? s.content.slice(0, 60) + '...' : s.content,
+    body: s.content,
+    tags: [],
+    flair: null,
+    votes: s.suneinCount,
+    comments: 0,
+    createdAt: new Date(s.createdAt),
   }
-  return map[circle] ?? 'SathiCircle'
 }
 
 export function Stories() {
-  const [firestoreStories, setFirestoreStories] = useState<Story[]>([])
+  const [apiStories, setApiStories] = useState<Story[]>([])
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'stories'),
-      orderBy('timestamp', 'desc'),
-      limit(50)
-    )
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const loaded: Story[] = snapshot.docs.map((doc) => {
-          const d = doc.data()
-          const text: string = d.text ?? ''
-          return {
-            id: doc.id,
-            firestoreId: doc.id,
-            circleId: mapCircle(d.circle ?? ''),
-            title: text.length > 60 ? text.slice(0, 60) + '...' : text,
-            body: text,
-            tags: [],
-            flair: null,
-            votes: d.reactions ?? 0,
-            comments: 0,
-            createdAt: d.timestamp?.toDate() ?? new Date(),
-          }
-        })
-        setFirestoreStories(loaded)
-      },
-      (err) => {
-        console.error('Firestore onSnapshot error:', err)
-      }
-    )
-    return () => unsubscribe()
+    fetch(`${API}/api/stories`, { credentials: 'include' })
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success) setApiStories((res.data as ApiStory[]).map(mapApiStory))
+      })
+      .catch((err) => console.error('Error loading stories:', err))
   }, [])
 
   async function handleNewStory(text: string) {
     try {
-      await addDoc(collection(db, 'stories'), {
-        text,
-        timestamp: serverTimestamp(),
-        reactions: 0,
-        circle: 'general',
+      const res = await fetch(`${API}/api/stories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ content: text }),
       })
-      // onSnapshot will pick it up — no manual state update needed
+      const json = await res.json()
+      if (json.success) {
+        setApiStories((prev) => [mapApiStory(json.data as ApiStory), ...prev])
+      }
     } catch (err) {
       console.error('Error adding story:', err)
     }
   }
 
-  // Firestore stories first, mock stories appended as seed content
-  const stories = [...firestoreStories, ...mockStories]
+  const stories = [...apiStories, ...mockStories]
 
   return (
     <div className="min-h-screen bg-pageBg font-sans">

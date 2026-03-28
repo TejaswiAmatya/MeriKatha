@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
-import { doc, updateDoc, increment } from 'firebase/firestore'
-import { db } from '../../lib/firebase'
 import type { Story } from '../../types/feed'
+
+const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
 import { circles, relativeTime } from '../../data/mockStories'
 
 export function PostCard({ story }: { story: Story }) {
@@ -20,14 +20,13 @@ export function PostCard({ story }: { story: Story }) {
     setListened(true)
     setTimeout(() => setRipplePos(null), 500)
 
-    if (story.firestoreId) {
-      try {
-        await updateDoc(doc(db, 'stories', story.firestoreId), {
-          reactions: increment(1),
-        })
-      } catch (err) {
-        console.error('Error incrementing reactions:', err)
-      }
+    try {
+      await fetch(`${API}/api/stories/${story.id}/sunein`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch (err) {
+      console.error('Error incrementing sunein:', err)
     }
   }
 

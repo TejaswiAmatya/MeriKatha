@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-const API = 'http://localhost:3000'
+const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
 
 export function StoryInput({ onSubmit }: { onSubmit: (text: string) => void }) {
   const [text, setText] = useState('')
@@ -23,6 +23,7 @@ export function StoryInput({ onSubmit }: { onSubmit: (text: string) => void }) {
       const res = await fetch(`${API}/api/stories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ content: trimmed }),
       })
 
