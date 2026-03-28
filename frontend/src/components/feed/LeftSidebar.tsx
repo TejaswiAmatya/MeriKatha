@@ -7,12 +7,6 @@ const navItems = [
   { label: 'अन्वेषण', labelEn: 'Explore', icon: '🧭', active: false },
 ]
 
-const featureItems = [
-  { label: 'Mann ko Mausam', icon: '⛅' },
-  { label: 'Diyo Baln', icon: '🪔' },
-  { label: 'Aangan Bot', icon: '🙏' },
-  { label: 'Sahara', icon: '🤝' },
-]
 
 export function LeftSidebar() {
   return (
@@ -43,19 +37,6 @@ export function LeftSidebar() {
             <span className="text-white text-[8px] font-bold font-serif">{c.initial}</span>
           </div>
           <span className="text-xs">c/{c.id}</span>
-        </button>
-      ))}
-
-      <hr className="border-sand my-3" />
-
-      {/* Features */}
-      {featureItems.map((item) => (
-        <button
-          key={item.label}
-          className="w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-lg text-ink hover:bg-feedBg transition-colors"
-        >
-          <span className="text-sm">{item.icon}</span>
-          <span className="text-xs">{item.label}</span>
         </button>
       ))}
 

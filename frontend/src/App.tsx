@@ -7,6 +7,7 @@ import { Feed } from './pages/Feed'
 import { Stories } from './pages/Stories'
 import { Sahara } from './pages/Sahara'
 import { Bot } from './pages/Bot'
+import { Diyo } from './pages/Diyo'
 import { SOSButton } from './components/ui/SOSButton'
 import type { ReactNode } from 'react'
 
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/story" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
           <Route path="/sahara" element={<ProtectedRoute><Sahara /></ProtectedRoute>} />
           <Route path="/bot" element={<ProtectedRoute><Bot /></ProtectedRoute>} />
+          <Route path="/diyo" element={<ProtectedRoute><Diyo /></ProtectedRoute>} />
         </Routes>
         <SOSButton />
       </BrowserRouter>
