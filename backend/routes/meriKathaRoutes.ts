@@ -91,7 +91,7 @@ meriKathaRouter.get("/stories", getStories);
  *                   example: null
  *                 error:
  *                   type: string
- *                   example: "Aphno katha lekh ta — kam se kam 10 characters chahiyo"
+ *                   example: "Aphno katha lekhnuhos — kam se kam 10 characters chahiyo"
  *       500:
  *         description: Server error
  *         content:

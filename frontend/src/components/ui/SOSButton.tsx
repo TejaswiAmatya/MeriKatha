@@ -37,7 +37,7 @@ export function SOSButton() {
           >
             <p className="font-serif text-xl font-bold text-ink mb-1">Thik chha? 🙏</p>
             <p className="text-sm text-textBody mb-4 leading-relaxed font-sans">
-              Yahan kehi resources chan jo tero sath huncha:
+              Yahan kehi resources chan jo tapailai help huncha:
             </p>
 
             <p className="text-[9px] tracking-widest uppercase text-textMuted mb-2">NEPAL</p>

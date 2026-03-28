@@ -26,7 +26,7 @@ export const setStories = async (req: Request, res: Response) => {
     return res.status(400).json({
       success: false,
       data: null,
-      error: "Aphno katha lekh ta — kam se kam 10 characters chahiyo",
+      error: "Aphno katha lekhnuhos — kam se kam 10 characters chahiyo",
     });
   }
 

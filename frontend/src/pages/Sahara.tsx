@@ -117,7 +117,7 @@ export function Sahara() {
         {/* Footer note */}
         <div className="bg-feedBg rounded-xl p-4 border border-sand text-center">
           <p className="text-xs text-textBody leading-relaxed">
-            Tero kura sunna yiniharu sada tayyar chan. Yo "crisis" hoina — yo care ho. 🙏
+            Tapaiko kura sunna yiniharu sada tayyar chan. Yo "crisis" hoina — yo care ho. 🙏
           </p>
         </div>
       </div>

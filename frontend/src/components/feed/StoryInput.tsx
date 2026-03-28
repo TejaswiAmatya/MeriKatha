@@ -57,7 +57,7 @@ export function StoryInput({ onSubmit }: { onSubmit: (text: string) => void }) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         className="w-full bg-transparent text-sm text-textBody placeholder:text-textMuted font-sans resize-none outline-none leading-relaxed"
-        placeholder="Tero katha share gar..."
+        placeholder="Tapaiko katha share garnu..."
         rows={2}
         maxLength={500}
       />
