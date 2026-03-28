@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npm run:*)",
+      "Bash(openssl rand:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node -r ts-node/register -e \"process.exit\\(0\\)\")",
+      "Bash(curl -s -X POST http://localhost:3001/auth/session -c /tmp/ms_cookies.txt)",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s http://localhost:3001/)",
+      "Bash(curl -s http://localhost:3001/auth/session)",
+      "Bash(npm list:*)",
+      "Bash(npx prisma:*)",
+      "Bash(pkill -f \"ts-node-dev\")",
+      "Bash(pkill -f ts-node-dev)",
+      "Bash(curl -s http://localhost:5175/)",
+      "Bash(curl -s -X POST http://localhost:3001/api/auth/signup -H 'Content-Type: application/json' -d '{\"\"\"\"email\"\"\"\":\"\"\"\"test@mannsathi.com\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"testpass123\"\"\"\"}' -c /tmp/mannsathi_cookies.txt)"
+    ]
+  }
+}
