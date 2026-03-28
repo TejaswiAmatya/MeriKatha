@@ -2,21 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(npx tailwindcss:*)",
-      "Bash(npm run:*)",
-      "Bash(openssl rand:*)",
-      "Bash(npx tsc:*)",
-      "Bash(node -r ts-node/register -e \"process.exit\\(0\\)\")",
-      "Bash(curl -s -X POST http://localhost:3001/auth/session -c /tmp/ms_cookies.txt)",
-      "Bash(python3 -m json.tool)",
-      "Bash(curl -s http://localhost:3001/)",
-      "Bash(curl -s http://localhost:3001/auth/session)",
-      "Bash(npm list:*)",
+      "Bash(curl -s -X POST http://localhost:3001/api/auth/login -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test@test.com\"\",\"\"password\"\":\"\"password123\"\"}')",
+      "Bash(curl -sv -X POST http://localhost:3001/api/auth/login -H \"Content-Type: application/json\" -d '{\"\"\"\"email\"\"\"\":\"\"\"\"test@test.com\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"password123\"\"\"\"}')",
+      "Bash(find /Users/abiralshrestha/Documents/WebDev/Projects/MeriKatha -name *.prisma)",
+      "Bash(find /Users/abiralshrestha/Documents/WebDev/Projects/MeriKatha -path */generated/prisma/client* -name index.js)",
       "Bash(npx prisma:*)",
-      "Bash(pkill -f \"ts-node-dev\")",
-      "Bash(pkill -f ts-node-dev)",
-      "Bash(curl -s http://localhost:5175/)",
-      "Bash(curl -s -X POST http://localhost:3001/api/auth/signup -H 'Content-Type: application/json' -d '{\"\"\"\"email\"\"\"\":\"\"\"\"test@mannsathi.com\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"testpass123\"\"\"\"}' -c /tmp/mannsathi_cookies.txt)"
+      "Bash(python3 -c \"import sys,json; p=json.load\\(sys.stdin\\); print\\(p[''''version'''']\\)\")",
+      "Bash(curl -s -X POST http://localhost:3001/api/auth/login -H \"Content-Type: application/json\" -d '{\"\"\"\"email\"\"\"\":\"\"\"\"test@test.com\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"password123\"\"\"\"}')",
+      "Bash(curl:*)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js|json|prisma\\)$\")"
     ]
   }
 }
