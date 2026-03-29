@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLang } from "../../context/LangContext";
 import { THEMES } from "../../data/themes";
 import type { ThemeValue } from "../../data/themes";
@@ -63,7 +63,8 @@ export function StoryInput({
         recognitionRef.current.stop();
         recognitionRef.current = null;
       }
-      if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop());
+      if (streamRef.current)
+        streamRef.current.getTracks().forEach((t) => t.stop());
     };
   }, []);
 
@@ -102,7 +103,9 @@ export function StoryInput({
   // --- Audio recording ---
 
   function startTranscription() {
-    const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognitionCtor =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognitionCtor) {
       setTranscriptHint("Auto-transcript yo browser ma support chaina.");
@@ -203,7 +206,10 @@ export function StoryInput({
 
   const stopRecording = useCallback(() => {
     stopTranscription();
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
       mediaRecorderRef.current.stop();
     }
     if (timerRef.current) {
@@ -230,7 +236,11 @@ export function StoryInput({
     const body = editorRef.current?.innerText?.trim() ?? "";
 
     if (!title.trim()) {
-      setError(lang === "en" ? "Please add a title." : "Title lekhnus — aawashyak cha.");
+      setError(
+        lang === "en"
+          ? "Please add a title."
+          : "Title lekhnus — aawashyak cha.",
+      );
       return;
     }
     const fullContent = `${title.trim()}\n\n${body}`;
@@ -290,7 +300,7 @@ export function StoryInput({
 
       onSubmit(fullContent, theme as ThemeValue, audioBase64 ?? undefined);
       close();
-      navigate('/feed');
+      navigate("/feed");
     } catch {
       setError("Server sanga connect huna sakena. Feri try garnus.");
     } finally {
@@ -349,7 +359,9 @@ export function StoryInput({
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={lang === "en" ? "Title — required" : "Title — aawashyak cha"}
+              placeholder={
+                lang === "en" ? "Title — required" : "Title — aawashyak cha"
+              }
               maxLength={120}
               className="px-5 py-3 text-sm font-sans text-ink placeholder:text-textMuted/60 bg-transparent border-b border-sand/30 outline-none"
             />
@@ -498,7 +510,16 @@ export function StoryInput({
                   onMouseDown={startRecording}
                   title={lang === "en" ? "Record audio" : "Awaaz record garnus"}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
                     <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
                     <line x1="12" y1="19" x2="12" y2="23" />
@@ -509,7 +530,10 @@ export function StoryInput({
               {recording && (
                 <button
                   type="button"
-                  onMouseDown={(e) => { e.preventDefault(); stopRecording(); }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    stopRecording();
+                  }}
                   className="flex items-center gap-1.5 px-2 py-1 rounded text-xs text-sindoor font-semibold hover:bg-sindoor/10 transition-colors"
                 >
                   <span className="w-2 h-2 bg-sindoor rounded-full animate-pulse" />
@@ -544,7 +568,9 @@ export function StoryInput({
                   </span>
                 )}
                 {transcriptHint && (
-                  <span className="text-[11px] text-textMuted">{transcriptHint}</span>
+                  <span className="text-[11px] text-textMuted">
+                    {transcriptHint}
+                  </span>
                 )}
                 {micError && (
                   <span className="text-[11px] text-sindoor">{micError}</span>
@@ -609,7 +635,11 @@ export function StoryInput({
             {/* Footer */}
             <div className="flex items-center justify-between px-5 py-4">
               <span className="text-[9px] text-textMuted">
-                {audioBase64 ? (lang === "en" ? "audio attached" : "audio jodiyeko") : ""}
+                {audioBase64
+                  ? lang === "en"
+                    ? "audio attached"
+                    : "audio jodiyeko"
+                  : ""}
               </span>
               <div className="flex items-center gap-3">
                 <button
