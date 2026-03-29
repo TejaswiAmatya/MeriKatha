@@ -33,11 +33,16 @@ export function Bot() {
       const res = await fetch('/api/bot/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ messages: next }),
       })
       const json = await res.json()
       if (json.success && json.data?.reply) {
         setMessages((prev) => [...prev, { role: 'assistant', content: json.data.reply }])
+      } else {
+        const err =
+          typeof json.error === 'string' ? json.error : 'Kei bigryo — feri try gara na. 🙏'
+        setMessages((prev) => [...prev, { role: 'assistant', content: err }])
       }
     } catch {
       setMessages((prev) => [
@@ -60,7 +65,7 @@ export function Bot() {
     <div className="min-h-screen bg-pageBg font-sans flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-40 h-12 bg-pageBg/90 backdrop-blur-sm border-b border-sand flex items-center px-5 gap-3">
-        <Link to="/stories" className="text-textMuted text-xs hover:text-ink transition-colors">
+        <Link to="/feed" className="text-textMuted text-xs hover:text-ink transition-colors">
           ← Farka
         </Link>
         <div className="flex items-center gap-2">

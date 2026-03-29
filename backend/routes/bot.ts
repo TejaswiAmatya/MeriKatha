@@ -1,11 +1,49 @@
 import express from "express";
 import { z } from "zod";
 import Anthropic from "@anthropic-ai/sdk";
-import { prisma } from "../lib/prisma";
+import { APIError } from "@anthropic-ai/sdk";
 
 const botRouter = express.Router();
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+function getAnthropic(): Anthropic | null {
+  const key = process.env.ANTHROPIC_API_KEY?.trim();
+  if (!key) return null;
+  return new Anthropic({ apiKey: key });
+}
+
+function textFromAssistantMessage(content: Anthropic.Messages.Message["content"]): string {
+  const parts: string[] = [];
+  for (const block of content) {
+    if (block.type === "text" && "text" in block) parts.push(block.text);
+  }
+  return parts.join("\n").trim();
+}
+
+function botErrorResponse(res: express.Response, err: unknown, logLabel: string) {
+  console.error(`[${logLabel}]`, err);
+  let userMsg = "Bot sanga kura huna sakena — feri try garnus.";
+  if (err instanceof APIError) {
+    if (err.status === 401) {
+      userMsg =
+        "Anthropic API key milena ya expire bhayo — backend ko .env maa ANTHROPIC_API_KEY hernus.";
+    } else if (err.status === 404) {
+      userMsg = "Bot model fhelaparena — model name update garnu parcha hola.";
+    } else if (err.status === 429) {
+      userMsg = "Ali dhilo bhaisakyo — ek chin pachi feri try garnus.";
+    } else if (err.status === 400 && err.message) {
+      userMsg = `Request Anthropic le aswad garyo: ${err.message}`;
+    }
+  } else if (err instanceof Error && err.message) {
+    if (process.env.NODE_ENV !== "production") {
+      userMsg = `${userMsg} (${err.message})`;
+    }
+  }
+  return res.status(500).json({
+    success: false,
+    data: null,
+    error: userMsg,
+  });
+}
 const supportedLanguageSchema = z.enum(["en", "ne", "hi"]);
 
 const LANGUAGE_RULES: Record<"en" | "ne" | "hi", string> = {
@@ -95,6 +133,15 @@ function checkMessagesForCrisis(messages: { content: string }[]): boolean {
   return lastMsg ? isCrisis(lastMsg.content) : false;
 }
 
+/** Anthropic requires `messages` to start with a `user` role; the app prepends a local-only assistant welcome. */
+function anthropicMessages(
+  messages: { role: "user" | "assistant"; content: string }[],
+): { role: "user" | "assistant"; content: string }[] {
+  let i = 0;
+  while (i < messages.length && messages[i].role === "assistant") i++;
+  return messages.slice(i);
+}
+
 /* ── Output Guardrails ── */
 
 function sanitizeOutput(text: string): string {
@@ -151,33 +198,43 @@ botRouter.post("/chat", async (req, res) => {
     return res.json(CRISIS_RESPONSE);
   }
 
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.user!.sub },
-      select: { preferredLanguage: true },
+  const toModel = anthropicMessages(parsed.data.messages);
+  if (toModel.length === 0 || toModel[0].role !== "user") {
+    return res.status(400).json({
+      success: false,
+      data: null,
+      error: "Message khali huna sakdaina",
     });
+  }
 
-    const preferredLanguage = parsed.data.preferredLanguage ?? user?.preferredLanguage ?? "en";
+  const client = getAnthropic();
+  if (!client) {
+    console.error("[bot/chat] ANTHROPIC_API_KEY missing or empty");
+    return res.status(503).json({
+      success: false,
+      data: null,
+      error:
+        "Aangan Bot ahile yaha chalira chhaina — server maa ANTHROPIC_API_KEY set garnu parcha.",
+    });
+  }
+
+  try {
+    const preferredLanguage = parsed.data.preferredLanguage ?? "ne";
     const systemPrompt = `${AANGAN_SYSTEM_PROMPT}\n\nLanguage policy:\n${LANGUAGE_RULES[preferredLanguage]}`;
 
-    const message = await anthropic.messages.create({
+    const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 256,
       system: systemPrompt,
-      messages: parsed.data.messages,
+      messages: toModel,
     });
 
-    const block = message.content[0];
-    const raw = block.type === "text" ? block.text : "";
-    const reply = sanitizeOutput(raw);
+    const raw = textFromAssistantMessage(message.content);
+    const reply = sanitizeOutput(raw || FALLBACK_RESPONSE);
 
     res.json({ success: true, data: { reply } });
-  } catch {
-    res.status(500).json({
-      success: false,
-      data: null,
-      error: "Bot sanga kura huna sakena — feri try garnus",
-    });
+  } catch (err) {
+    return botErrorResponse(res, err, "bot/chat");
   }
 });
 
@@ -195,25 +252,31 @@ botRouter.post("/mood-reflection", async (req, res) => {
   const { mood, quoteText, quoteAuthor } = parsed.data;
   const systemPrompt = MOOD_REFLECTION_SYSTEM(mood, quoteText, quoteAuthor);
 
+  const client = getAnthropic();
+  if (!client) {
+    console.error("[bot/mood-reflection] ANTHROPIC_API_KEY missing or empty");
+    return res.status(503).json({
+      success: false,
+      data: null,
+      error:
+        "Aangan Bot ahile yaha chalira chhaina — server maa ANTHROPIC_API_KEY set garnus.",
+    });
+  }
+
   try {
-    const message = await anthropic.messages.create({
+    const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 100,
       system: systemPrompt,
       messages: [{ role: "user", content: "Reflect on my mood." }],
     });
 
-    const block = message.content[0];
-    const raw = block.type === "text" ? block.text : "";
-    const reply = sanitizeOutput(raw);
+    const raw = textFromAssistantMessage(message.content);
+    const reply = sanitizeOutput(raw || FALLBACK_RESPONSE);
 
     res.json({ success: true, data: { reply } });
-  } catch {
-    res.status(500).json({
-      success: false,
-      data: null,
-      error: "Reflection generate huna sakena",
-    });
+  } catch (err) {
+    return botErrorResponse(res, err, "bot/mood-reflection");
   }
 });
 
