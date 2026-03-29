@@ -59,6 +59,8 @@ export function Stories() {
   const activeTheme = (searchParams.get("theme") ?? "") as ThemeValue | "";
 
   useEffect(() => {
+    // Skip re-fetch on back-navigation when stories are already loaded
+    if (apiStories.length > 0 && !activeTheme) return;
     const url = activeTheme
       ? `${API}/api/stories?theme=${activeTheme}`
       : `${API}/api/stories`;
@@ -110,7 +112,9 @@ export function Stories() {
   const filteredMock = activeTheme
     ? mockStories.filter((s) => s.theme === activeTheme)
     : mockStories;
-  const allStories = [...apiStories, ...filteredMock];
+  const allStories = [...apiStories, ...filteredMock].sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+  );
   const stories = isTrending
     ? trendingStories
     : q

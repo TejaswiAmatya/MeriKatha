@@ -1,39 +1,19 @@
 import express from "express";
 import { z } from "zod";
-import Anthropic from "@anthropic-ai/sdk";
-import { APIError } from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 
 const botRouter = express.Router();
 
-function getAnthropic(): Anthropic | null {
-  const key = process.env.ANTHROPIC_API_KEY?.trim();
+function getGroq(): Groq | null {
+  const key = process.env.GROQ_API_KEY?.trim();
   if (!key) return null;
-  return new Anthropic({ apiKey: key });
-}
-
-function textFromAssistantMessage(content: Anthropic.Messages.Message["content"]): string {
-  const parts: string[] = [];
-  for (const block of content) {
-    if (block.type === "text" && "text" in block) parts.push(block.text);
-  }
-  return parts.join("\n").trim();
+  return new Groq({ apiKey: key });
 }
 
 function botErrorResponse(res: express.Response, err: unknown, logLabel: string) {
   console.error(`[${logLabel}]`, err);
   let userMsg = "Bot sanga kura huna sakena — feri try garnus.";
-  if (err instanceof APIError) {
-    if (err.status === 401) {
-      userMsg =
-        "Anthropic API key milena ya expire bhayo — backend ko .env maa ANTHROPIC_API_KEY hernus.";
-    } else if (err.status === 404) {
-      userMsg = "Bot model fhelaparena — model name update garnu parcha hola.";
-    } else if (err.status === 429) {
-      userMsg = "Ali dhilo bhaisakyo — ek chin pachi feri try garnus.";
-    } else if (err.status === 400 && err.message) {
-      userMsg = `Request Anthropic le aswad garyo: ${err.message}`;
-    }
-  } else if (err instanceof Error && err.message) {
+  if (err instanceof Error && err.message) {
     if (process.env.NODE_ENV !== "production") {
       userMsg = `${userMsg} (${err.message})`;
     }
@@ -133,8 +113,8 @@ function checkMessagesForCrisis(messages: { content: string }[]): boolean {
   return lastMsg ? isCrisis(lastMsg.content) : false;
 }
 
-/** Anthropic requires `messages` to start with a `user` role; the app prepends a local-only assistant welcome. */
-function anthropicMessages(
+/** Strip any leading assistant messages — chat must start with a user turn. */
+function stripLeadingAssistant(
   messages: { role: "user" | "assistant"; content: string }[],
 ): { role: "user" | "assistant"; content: string }[] {
   let i = 0;
@@ -198,7 +178,7 @@ botRouter.post("/chat", async (req, res) => {
     return res.json(CRISIS_RESPONSE);
   }
 
-  const toModel = anthropicMessages(parsed.data.messages);
+  const toModel = stripLeadingAssistant(parsed.data.messages);
   if (toModel.length === 0 || toModel[0].role !== "user") {
     return res.status(400).json({
       success: false,
@@ -207,14 +187,13 @@ botRouter.post("/chat", async (req, res) => {
     });
   }
 
-  const client = getAnthropic();
+  const client = getGroq();
   if (!client) {
-    console.error("[bot/chat] ANTHROPIC_API_KEY missing or empty");
+    console.error("[bot/chat] GROQ_API_KEY missing or empty");
     return res.status(503).json({
       success: false,
       data: null,
-      error:
-        "Aangan Bot ahile yaha chalira chhaina — server maa ANTHROPIC_API_KEY set garnu parcha.",
+      error: "Aangan Bot ahile yaha chalira chhaina — server maa GROQ_API_KEY set garnu parcha.",
     });
   }
 
@@ -222,14 +201,15 @@ botRouter.post("/chat", async (req, res) => {
     const preferredLanguage = parsed.data.preferredLanguage ?? "ne";
     const systemPrompt = `${AANGAN_SYSTEM_PROMPT}\n\nLanguage policy:\n${LANGUAGE_RULES[preferredLanguage]}`;
 
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+    const completion = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
       max_tokens: 256,
-      system: systemPrompt,
-      messages: toModel,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...toModel,
+      ],
     });
-
-    const raw = textFromAssistantMessage(message.content);
+    const raw = completion.choices[0]?.message?.content ?? "";
     const reply = sanitizeOutput(raw || FALLBACK_RESPONSE);
 
     res.json({ success: true, data: { reply } });
@@ -252,26 +232,26 @@ botRouter.post("/mood-reflection", async (req, res) => {
   const { mood, quoteText, quoteAuthor } = parsed.data;
   const systemPrompt = MOOD_REFLECTION_SYSTEM(mood, quoteText, quoteAuthor);
 
-  const client = getAnthropic();
+  const client = getGroq();
   if (!client) {
-    console.error("[bot/mood-reflection] ANTHROPIC_API_KEY missing or empty");
+    console.error("[bot/mood-reflection] GROQ_API_KEY missing or empty");
     return res.status(503).json({
       success: false,
       data: null,
-      error:
-        "Aangan Bot ahile yaha chalira chhaina — server maa ANTHROPIC_API_KEY set garnus.",
+      error: "Aangan Bot ahile yaha chalira chhaina — server maa GROQ_API_KEY set garnus.",
     });
   }
 
   try {
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+    const completion = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
       max_tokens: 100,
-      system: systemPrompt,
-      messages: [{ role: "user", content: "Reflect on my mood." }],
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: "Reflect on my mood." },
+      ],
     });
-
-    const raw = textFromAssistantMessage(message.content);
+    const raw = completion.choices[0]?.message?.content ?? "";
     const reply = sanitizeOutput(raw || FALLBACK_RESPONSE);
 
     res.json({ success: true, data: { reply } });

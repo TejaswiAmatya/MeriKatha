@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 import { prisma } from "../lib/prisma";
 import { storySchema } from "../schema/storySchema";
 import { commentSchema } from "../schema/commentSchema";
 import { translateSchema } from "../schema/translateSchema";
 import { checkStoryContent } from "../src/storyContentCheck";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const VALID_THEMES = [
   "harassment",
@@ -281,14 +281,12 @@ export const translateText = async (req: Request, res: Response) => {
         ? `Translate the following Nepali or Nepali-English mixed text to natural, warm English. Preserve the emotional tone. Return ONLY the translated text — no explanations, no quotes, no labels.\n\n${text}`
         : `Translate the following English text to natural spoken Nepali (Devanagari script). Use conversational Nepali, not formal/literary. Preserve the emotional tone. Return ONLY the translated text — no explanations, no quotes, no labels.\n\n${text}`;
 
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1024,
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
+      max_tokens: 1024,
     });
-
-    const block = message.content[0];
-    const translatedText = block.type === "text" ? block.text : "";
+    const translatedText = completion.choices[0]?.message?.content ?? "";
     res.json({ success: true, data: { translatedText } });
   } catch {
     res.status(500).json({

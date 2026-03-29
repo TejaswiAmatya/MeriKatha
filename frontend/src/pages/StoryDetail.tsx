@@ -52,6 +52,9 @@ export function StoryDetail() {
   const location = useLocation()
   const navigate = useNavigate()
 
+  // Scroll to top on mount so the page doesn't open mid-scroll
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+
   // ── Story state ──────────────────────────────────────────────────────────
   const [story, setStory] = useState<Story | null>(
     (location.state as { story?: Story } | null)?.story ?? null
@@ -104,8 +107,12 @@ export function StoryDetail() {
 
   // ── Story translation ────────────────────────────────────────────────────
   useEffect(() => {
-    if (lang !== 'en' || !story) return
-    const cacheKey = `detail-${story.id}`
+    if (!story) return
+    const hasDevanagari = /[\u0900-\u097F]/.test(story.body)
+    const needsTranslation = (lang === 'en' && hasDevanagari) || (lang === 'ne' && !hasDevanagari)
+    if (!needsTranslation) { setTranslatedBody(null); return }
+
+    const cacheKey = `${story.id}-${lang}`
     if (translationCache.has(cacheKey)) {
       setTranslatedBody(translationCache.get(cacheKey)!)
       return
@@ -115,7 +122,7 @@ export function StoryDetail() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ text: story.body }),
+      body: JSON.stringify({ text: story.body, targetLang: lang }),
     })
       .then((r) => r.json())
       .then((data) => {
@@ -299,13 +306,13 @@ export function StoryDetail() {
                 )}
               </div>
 
-              <h1 className={`font-serif font-bold text-xl text-ink leading-snug mt-3 ${translatingStory ? 'opacity-50 animate-pulse' : ''}`}>
-                {lang === 'en' && translatedBody
+              <h1 className={`font-serif font-bold text-xl text-ink leading-snug mt-3 ${translatingStory ? 'opacity-50 animate-pulse' : ''} ${lang === 'ne' && translatedBody ? 'font-devanagari' : ''}`}>
+                {translatedBody
                   ? (translatedBody.length > 80 ? translatedBody.slice(0, 80) + '...' : translatedBody)
                   : story.title}
               </h1>
-              <p className={`text-sm text-textBody leading-relaxed mt-3 whitespace-pre-wrap ${translatingStory ? 'opacity-50 animate-pulse' : ''}`}>
-                {translatingStory ? 'Anuvad gardai...' : lang === 'en' && translatedBody ? translatedBody : story.body}
+              <p className={`text-sm text-textBody leading-relaxed mt-3 whitespace-pre-wrap ${translatingStory ? 'opacity-50 animate-pulse' : ''} ${lang === 'ne' && translatedBody ? 'font-devanagari' : ''}`}>
+                {translatingStory ? 'Anuvad gardai...' : translatedBody ?? story.body}
               </p>
 
               {story.tags.length > 0 && (

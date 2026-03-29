@@ -122,7 +122,7 @@ export function PostCard({ story, onDelete }: { story: Story; onDelete?: (id: st
 
       {/* Clickable content area → story detail */}
       <Link to={`/feed/${story.id}`} state={{ story }} className="block group">
-        <h3 className={`font-serif font-bold text-[15px] text-ink leading-tight mt-1.5 line-clamp-2 group-hover:text-sindoor transition-colors ${translating ? 'animate-pulse opacity-60' : ''}`}>
+        <h3 className={`font-serif font-bold text-[15px] text-ink leading-tight mt-1.5 line-clamp-2 group-hover:text-sindoor transition-colors ${translating ? 'animate-pulse opacity-60' : ''} ${lang === 'ne' && translatedBody ? 'font-devanagari' : ''}`}>
           {displayTitle}
         </h3>
 
@@ -133,7 +133,7 @@ export function PostCard({ story, onDelete }: { story: Story; onDelete?: (id: st
           </div>
         )}
 
-        <p className={`text-xs text-textBody leading-relaxed mt-1 line-clamp-3 ${translating ? 'animate-pulse opacity-60' : ''}`}>
+        <p className={`text-xs text-textBody leading-relaxed mt-1 line-clamp-3 ${translating ? 'animate-pulse opacity-60' : ''} ${lang === 'ne' && translatedBody ? 'font-devanagari' : ''}`}>
           {translating ? 'Anuvad gardai...' : displayBody}
         </p>
       </Link>

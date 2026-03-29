@@ -18,8 +18,9 @@ export default {
         textMuted: '#9A7B5A',
       },
       fontFamily: {
-        serif: ['Playfair Display', 'Georgia', 'serif'],
-        sans:  ['Hind', 'Arial', 'sans-serif'],
+        serif:      ['Playfair Display', 'Georgia', 'serif'],
+        sans:       ['Hind', 'Arial', 'sans-serif'],
+        devanagari: ['Noto Sans Devanagari', 'Hind', 'Arial', 'sans-serif'],
       },
       keyframes: {
         flicker: {
