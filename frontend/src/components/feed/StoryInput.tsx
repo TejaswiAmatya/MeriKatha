@@ -6,7 +6,7 @@ import type { ThemeValue } from "../../data/themes";
 import { circles } from "../../data/mockStories";
 import { AudioPlayer } from "../ui/AudioPlayer";
 
-const API = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const API = import.meta.env.VITE_API_URL ?? '';
 const MAX_RECORDING_SECONDS = 120;
 
 export function StoryInput({

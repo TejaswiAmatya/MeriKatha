@@ -6,7 +6,7 @@ import { useLang, translationCache } from '../../context/LangContext'
 import { useAuth } from '../../context/AuthContext'
 import { AudioPlayer } from '../ui/AudioPlayer'
 
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
+const API = import.meta.env.VITE_API_URL ?? ''
 
 async function fetchTranslation(text: string, cacheKey: string, targetLang: 'en' | 'ne'): Promise<string> {
   if (translationCache.has(cacheKey)) return translationCache.get(cacheKey)!

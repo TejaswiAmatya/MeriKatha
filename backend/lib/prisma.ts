@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 // Strip sslmode from URL — pg v8 treats sslmode=require as verify-full,
 // which conflicts with Supabase's self-signed cert. We handle SSL via the pool option.

@@ -1,6 +1,4 @@
-// Must be set before any TLS connections (dev with Supabase pooler)
 import 'dotenv/config'
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -15,11 +13,16 @@ import { swaggerSpec } from './config/swagger'
 const app = express()
 const PORT = process.env.PORT || 3001
 
-const corsOrigin =
-  process.env.CLIENT_URL ||
-  (process.env.NODE_ENV !== 'production'
-    ? /^http:\/\/localhost:\d+$/
-    : 'http://localhost:5173')
+const configuredOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
+const corsOrigin = configuredOrigins.length > 0
+  ? configuredOrigins
+  : (process.env.NODE_ENV !== 'production'
+      ? /^http:\/\/localhost:\d+$/
+      : 'http://localhost:5173')
 
 app.use(
   cors({

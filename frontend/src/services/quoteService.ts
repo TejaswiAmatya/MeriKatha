@@ -1,7 +1,7 @@
 import { quotes, FALLBACK_REFLECTIONS } from "../data/quotes";
 import type { Mood, Quote } from "../data/quotes";
 
-const API = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const API = import.meta.env.VITE_API_URL ?? '';
 const RECENT_KEY = "chhaya_recent_quotes";
 const MAX_RECENT = 20;
 

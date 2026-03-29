@@ -11,7 +11,7 @@ import { FeedList } from "../components/feed/FeedList";
 import { BottomNav } from "../components/feed/BottomNav";
 import { useLang } from "../context/LangContext";
 
-const API = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const API = import.meta.env.VITE_API_URL ?? '';
 
 interface ApiStory {
   id: string;

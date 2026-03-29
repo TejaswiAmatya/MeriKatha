@@ -5,7 +5,7 @@ import { DhakaBand } from '../ui/DhakaBand'
 import { useLang } from '../../context/LangContext'
 import { useAuth } from '../../context/AuthContext'
 
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
+const API = import.meta.env.VITE_API_URL ?? ''
 
 export function LeftSidebar() {
   const navigate = useNavigate()

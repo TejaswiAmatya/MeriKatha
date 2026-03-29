@@ -7,6 +7,7 @@ interface Message {
 }
 
 const WELCOME = 'Yahan ma cha. Ke lagdai cha aaja? 🙏'
+const API = import.meta.env.VITE_API_URL ?? ''
 
 export function Bot() {
   const [messages, setMessages] = useState<Message[]>([
@@ -30,7 +31,7 @@ export function Bot() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/bot/chat', {
+      const res = await fetch(`${API}/api/bot/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

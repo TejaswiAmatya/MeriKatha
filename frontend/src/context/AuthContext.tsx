@@ -11,6 +11,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
+const API = import.meta.env.VITE_API_URL ?? ''
 
 async function parseApiResponse(response: Response) {
   const raw = await response.text()
@@ -30,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/auth/me', { credentials: 'include' })
+    fetch(`${API}/api/auth/me`, { credentials: 'include' })
       .then(parseApiResponse)
       .then(res => { if (res.success) setUser(res.data) })
       .catch(() => {})
@@ -38,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   async function signup(email: string, password: string) {
-    const response = await fetch('/api/auth/signup', {
+    const response = await fetch(`${API}/api/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -50,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function login(email: string, password: string) {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch(`${API}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -62,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function logout() {
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+    await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' })
     setUser(null)
   }
 

@@ -4,6 +4,21 @@ A women-first, anonymous story-sharing platform for Nepali women. Share your kat
 
 ---
 
+## Docker Quickstart
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+- Frontend: `http://localhost:8080`
+- Backend: `http://localhost:3001`
+- Swagger: `http://localhost:3001/api-docs`
+
+Detailed guide: see [`DOCKER_DEPLOY.md`](./DOCKER_DEPLOY.md).
+
+---
+
 ## What This API Does
 
 **Meri Katha** is the anonymous story feed feature of MannSathi. It lets users:
