@@ -12,7 +12,7 @@ A warm space for South Asian women — to share, to feel, and to be heard. No ju
 | [@KungaLama] | Full-Stack Engineer | Feature development, bug fixes & performance optimization | Frontend, Backend, Testing |
 | @Rob Basnet | DevOps/Infrastructure | deployment automation & infrastructure management | Docker, Vercel, GitHub Actions |
 
-# Presentation prepared by all team members and Presented by @TejaswiAmatya!
+# Presentation prepared by all team members and Presented by @TejaswiAmatya
 ## Docker Quickstart
 
 ```bash
