@@ -4,6 +4,7 @@ import type { Story, Comment } from '../types/feed'
 import { circles, relativeTime, mockStories } from '../data/mockStories'
 import { Topbar } from '../components/feed/Topbar'
 import { useLang, translationCache } from '../context/LangContext'
+import { useAuth } from '../context/AuthContext'
 
 const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
 
@@ -12,12 +13,15 @@ interface ApiStory {
   content: string
   suneinCount: number
   createdAt: string
+  theme: string
+  circleId: string
+  userId?: string
 }
 
 function mapApiStory(s: ApiStory): Story {
   return {
     id: s.id,
-    circleId: 'SathiCircle',
+    circleId: s.circleId ?? 'SathiCircle',
     title: s.content.length > 60 ? s.content.slice(0, 60) + '...' : s.content,
     body: s.content,
     tags: [],
@@ -25,6 +29,8 @@ function mapApiStory(s: ApiStory): Story {
     votes: s.suneinCount,
     comments: 0,
     createdAt: new Date(s.createdAt),
+    theme: s.theme ?? 'general',
+    userId: s.userId,
   }
 }
 
@@ -58,8 +64,11 @@ export function StoryDetail() {
   const btnRef = useRef<HTMLButtonElement>(null)
 
   const { lang } = useLang()
+  const { user } = useAuth()
   const [translatedBody, setTranslatedBody] = useState<string | null>(null)
   const [translatingStory, setTranslatingStory] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   // ── Comment state ────────────────────────────────────────────────────────
   const [comments, setComments] = useState<Comment[]>([])
@@ -218,6 +227,26 @@ export function StoryDetail() {
     } catch {}
   }
 
+  async function handleDelete() {
+    if (!story) return
+    if (!confirmDelete) { setConfirmDelete(true); return }
+    setDeleting(true)
+    try {
+      await fetch(`${API}/api/stories/${story.id}`, { method: 'DELETE', credentials: 'include' })
+      navigate(-1)
+    } catch {
+      setDeleting(false)
+      setConfirmDelete(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!confirmDelete) return
+    const t = setTimeout(() => setConfirmDelete(false), 3000)
+    return () => clearTimeout(t)
+  }, [confirmDelete])
+
+  const isOwner = !!user && !!story && story.userId === user.userId
   const circle = story ? circles.find((c) => c.id === story.circleId) : null
   const voteCount = story ? (voted ? story.votes + 1 : story.votes) : 0
   const totalComments = comments.reduce((n, c) => n + 1 + (c.replies?.length ?? 0), 0)
@@ -316,6 +345,20 @@ export function StoryDetail() {
                 <button className="flex items-center gap-1 bg-feedBg rounded-full px-2.5 py-1 text-xs text-textBody hover:bg-sand/50 transition-colors ml-auto">
                   ↗ Share
                 </button>
+
+                {isOwner && (
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition-colors disabled:opacity-40 ${
+                      confirmDelete
+                        ? 'bg-sindoor/10 text-sindoor border border-sindoor/30'
+                        : 'text-textMuted hover:text-sindoor hover:bg-sindoor/10'
+                    }`}
+                  >
+                    {deleting ? '…' : confirmDelete ? (lang === 'en' ? 'Sure?' : 'Pakka?') : '🗑'}
+                  </button>
+                )}
               </div>
             </article>
           )}

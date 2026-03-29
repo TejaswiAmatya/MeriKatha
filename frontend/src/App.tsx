@@ -9,6 +9,7 @@ import { Sahara } from './pages/Sahara'
 import { Bot } from './pages/Bot'
 import { Diyo } from './pages/Diyo'
 import { StoryDetail } from './pages/StoryDetail'
+import { CirclePage } from './pages/CirclePage'
 import { SOSButton } from './components/ui/SOSButton'
 import { LangProvider } from './context/LangContext'
 import type { ReactNode } from 'react'
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/circles/:slug" element={<ProtectedRoute><CirclePage /></ProtectedRoute>} />
           <Route path="/feed/:id" element={<ProtectedRoute><StoryDetail /></ProtectedRoute>} />
           <Route path="/feed" element={<ProtectedRoute><Stories /></ProtectedRoute>} />
           <Route path="/story" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
