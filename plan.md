@@ -56,7 +56,7 @@ MannSathi is a women-first, anonymous Nepali mental health platform. It is cultu
 ```
 DATABASE_URL=         # Supabase pooler, port 6543 — for Prisma app queries
 DIRECT_URL=           # Supabase direct, port 5432 — for prisma db push
-ANTHROPIC_API_KEY=    # Claude API key — backend only, never exposed to browser
+GROQ_API_KEY=         # Groq API key — backend only, never exposed to browser
 ```
 
 ---

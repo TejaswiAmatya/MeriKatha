@@ -3,7 +3,7 @@
 ## 1. Prepare env
 1. Copy `.env.example` to `.env` in repo root.
 2. Fill `DATABASE_URL`, `DIRECT_URL`, and `JWT_SECRET`.
-3. (Optional) Fill `ANTHROPIC_API_KEY` for Aangan Bot.
+3. (Optional) Fill `GROQ_API_KEY` for Aangan Bot.
 
 ## 2. Run locally with Docker
 ```bash
@@ -17,7 +17,7 @@ docker compose up --build
 ## 3. Deploy backend (Railway/Render/Fly.io)
 - Build context: `backend/`
 - Dockerfile: `backend/Dockerfile`
-- Required envs: `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `CLIENT_URL`, `ANTHROPIC_API_KEY` (optional), `NODE_ENV=production`, `PORT=3001`
+- Required envs: `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `CLIENT_URL`, `GROQ_API_KEY` (optional), `NODE_ENV=production`, `PORT=3001`
 - For cross-domain frontend/backend auth cookies set:
   - `COOKIE_SAMESITE=none`
   - `COOKIE_SECURE=true`
