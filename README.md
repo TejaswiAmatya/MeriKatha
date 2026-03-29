@@ -1,4 +1,4 @@
-# Project: CHAYA (TEAM 74)
+# Project: CHHAYA (TEAM 74)
 # Event: Nepal‑US Hackathon 2026
 A warm space for South Asian women — to share, to feel, and to be heard. No judgment. No login. Just didi energy.
 ---
