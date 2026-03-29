@@ -19,7 +19,8 @@
       "Bash(git pull:*)",
       "Bash(npx tsc:*)",
       "Bash(grep -r \"query\\\\|q=\" /Users/abiralshrestha/Documents/WebDev/Projects/MeriKatha/frontend/src --include=*.tsx)",
-      "Bash(npx ts-node:*)"
+      "Bash(npx ts-node:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
