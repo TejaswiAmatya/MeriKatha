@@ -13,7 +13,7 @@ export function FeedList({
   onComposerOpenChange,
 }: {
   stories: Story[];
-  onNewStory: (text: string, theme: ThemeValue) => void;
+  onNewStory: (text: string, theme: ThemeValue, audioBase64?: string) => void;
   onDelete?: (id: string) => void;
   circleId?: string;
   composerOpen?: boolean;

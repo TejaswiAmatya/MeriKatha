@@ -30,6 +30,7 @@ export interface Story {
   circleId: string;
   title: string;
   body: string;
+  audioBase64?: string | null;
   tags: string[];
   flair: Flair | null;
   votes: number;

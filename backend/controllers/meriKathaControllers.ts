@@ -46,33 +46,47 @@ export const setStories = async (req: Request, res: Response) => {
     return res.status(400).json({
       success: false,
       data: null,
-      error: "Aphno katha lekh ta — kam se kam 10 characters chahiyo",
+      error: "Katha lekhnus (kam se kam 10 characters) ya audio record garnus",
     });
   }
 
   const userId = req.user?.sub ?? null;
 
   try {
-    const { content } = parsed.data;
-    const check = checkStoryContent(content);
+    const { content, audioBase64, ...rest } = parsed.data;
 
-    if (!check.ok) {
-      await prisma.story.create({
-        data: { ...parsed.data, status: "DELETED", flagCode: check.code, userId },
+    // Content moderation only runs on text (audio-only stories skip it)
+    if (content && content.length >= 10) {
+      const check = checkStoryContent(content);
+
+      if (!check.ok) {
+        await prisma.story.create({
+          data: { ...rest, content: content || "", audioBase64, status: "DELETED", flagCode: check.code, userId },
+        });
+        return res.status(422).json({
+          success: false,
+          data: null,
+          error: check.message,
+          code: check.code,
+          showResources: check.showResources,
+        });
+      }
+
+      const story = await prisma.story.create({
+        data: { ...rest, content: content || "", audioBase64, status: "APPROVED", userId },
       });
-      return res.status(422).json({
-        success: false,
-        data: null,
-        error: check.message,
-        code: check.code,
-        showResources: check.showResources,
+      return res.status(201).json({
+        success: true,
+        data: story,
+        flags: check.flags,
       });
     }
 
+    // Audio-only story (no text or text < 10 chars) — skip content moderation
     const story = await prisma.story.create({
-      data: { ...parsed.data, status: "APPROVED", userId },
+      data: { ...rest, content: content || "", audioBase64, status: "APPROVED", userId },
     });
-    res.status(201).json({ success: true, data: story, flags: check.flags });
+    res.status(201).json({ success: true, data: story });
   } catch {
     res.status(500).json({
       success: false,

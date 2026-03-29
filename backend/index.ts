@@ -26,13 +26,38 @@ app.use(
     credentials: true,
   }),
 )
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))
 app.use(cookieParser())
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 app.use('/api/auth', authRouter)
 app.use('/api', meriKathaRouter)
 app.use('/api', circleRouter)
+
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  if (err?.type === 'entity.too.large') {
+    return res.status(413).json({
+      success: false,
+      data: null,
+      error: 'Audio file dherai thulo chha. Ali sano recording try garnus.',
+    })
+  }
+
+  if (err?.type === 'entity.parse.failed') {
+    return res.status(400).json({
+      success: false,
+      data: null,
+      error: 'Request body invalid chha. Feri try garnus.',
+    })
+  }
+
+  const status = typeof err?.status === 'number' ? err.status : 500
+  const message = status >= 500
+    ? 'Kei problem bhayo. Ali pachi feri try garnus.'
+    : (err?.message || 'Request fail bhayo.')
+
+  return res.status(status).json({ success: false, data: null, error: message })
+})
 
 app.get('/', (_req, res) => {
   res.json({ success: true, data: { message: 'MannSathi API — Namaste 🙏' } })

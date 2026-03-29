@@ -16,6 +16,7 @@ const API = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 interface ApiStory {
   id: string;
   content: string;
+  audioBase64?: string | null;
   suneinCount: number;
   createdAt: string;
   theme: string;
@@ -25,11 +26,17 @@ interface ApiStory {
 }
 
 function mapApiStory(s: ApiStory): Story {
+  const hasText = s.content && s.content.length > 0;
   return {
     id: s.id,
     circleId: s.circleId ?? "SathiCircle",
-    title: s.content.length > 60 ? s.content.slice(0, 60) + "..." : s.content,
+    title: hasText
+      ? s.content.length > 60
+        ? s.content.slice(0, 60) + "..."
+        : s.content
+      : "Awaaz ma katha",
     body: s.content,
+    audioBase64: s.audioBase64,
     tags: [],
     flair: null,
     votes: s.suneinCount,
@@ -76,16 +83,20 @@ export function Stories() {
   }, [isTrending]);
 
   function handleDelete(id: string) {
-    setApiStories((prev) => prev.filter((s) => s.id !== id))
+    setApiStories((prev) => prev.filter((s) => s.id !== id));
   }
 
-  async function handleNewStory(text: string, theme: ThemeValue) {
+  async function handleNewStory(text: string, theme: ThemeValue, audioBase64?: string) {
     try {
       const res = await fetch(`${API}/api/stories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ content: text, theme }),
+        body: JSON.stringify({
+          content: text,
+          theme,
+          ...(audioBase64 ? { audioBase64 } : {}),
+        }),
       });
       const json = await res.json();
       if (json.success) {

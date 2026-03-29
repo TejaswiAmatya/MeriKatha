@@ -1,11 +1,13 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLang } from "../../context/LangContext";
 import { THEMES } from "../../data/themes";
 import type { ThemeValue } from "../../data/themes";
 import { circles } from "../../data/mockStories";
+import { AudioPlayer } from "../ui/AudioPlayer";
 
 const API = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const MAX_RECORDING_SECONDS = 120;
 
 export function StoryInput({
   onSubmit,
@@ -13,9 +15,8 @@ export function StoryInput({
   open: controlledOpen,
   onOpenChange,
 }: {
-  onSubmit: (text: string, theme: ThemeValue) => void;
+  onSubmit: (text: string, theme: ThemeValue, audioBase64?: string) => void;
   circleId?: string;
-  /** When set, modal open state is controlled (e.g. Topbar Create button) */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
@@ -35,6 +36,35 @@ export function StoryInput({
   const [submitting, setSubmitting] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Audio state
+  const [recording, setRecording] = useState(false);
+  const [audioBase64, setAudioBase64] = useState<string | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [micError, setMicError] = useState<string | null>(null);
+  const [transcribing, setTranscribing] = useState(false);
+  const [transcriptHint, setTranscriptHint] = useState<string | null>(null);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recognitionRef = useRef<any>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (recognitionRef.current) {
+        recognitionRef.current.onresult = null;
+        recognitionRef.current.onerror = null;
+        recognitionRef.current.onend = null;
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+      if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop());
+    };
+  }, []);
 
   function execCmd(cmd: string, value?: string) {
     editorRef.current?.focus();
@@ -61,8 +91,139 @@ export function StoryInput({
     setError(null);
     setShowResources(false);
     setFlagWarning(null);
+    setAudioBase64(null);
+    setElapsedSeconds(0);
+    setMicError(null);
+    setTranscriptHint(null);
     if (editorRef.current) editorRef.current.innerHTML = "";
   }
+
+  // --- Audio recording ---
+
+  function startTranscription() {
+    const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionCtor) {
+      setTranscriptHint("Auto-transcript yo browser ma support chaina.");
+      return;
+    }
+
+    setTranscriptHint(null);
+    const recognition = new SpeechRecognitionCtor();
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event: any) => {
+      let finalChunk = "";
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalChunk += `${result[0]?.transcript || ""} `;
+        }
+      }
+      const clean = finalChunk.trim();
+      if (!clean || !editorRef.current) return;
+      editorRef.current.focus();
+      document.execCommand("insertText", false, clean + " ");
+    };
+
+    recognition.onerror = () => {
+      setTranscriptHint("Auto-transcript stop bhayo. Recording continues.");
+      setTranscribing(false);
+    };
+
+    recognition.onend = () => {
+      setTranscribing(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setTranscribing(true);
+  }
+
+  function stopTranscription() {
+    if (!recognitionRef.current) return;
+    recognitionRef.current.stop();
+    recognitionRef.current = null;
+    setTranscribing(false);
+  }
+
+  const startRecording = useCallback(async () => {
+    setMicError(null);
+    setTranscriptHint(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+          ? "audio/webm;codecs=opus"
+          : "audio/webm",
+      });
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setAudioBase64(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+
+        stream.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      };
+
+      mediaRecorder.start();
+      startTranscription();
+      setRecording(true);
+      setAudioBase64(null);
+      setElapsedSeconds(0);
+
+      timerRef.current = setInterval(() => {
+        setElapsedSeconds((prev) => {
+          if (prev + 1 >= MAX_RECORDING_SECONDS) {
+            stopRecording();
+            return MAX_RECORDING_SECONDS;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch {
+      setMicError("Mic access dina parcha — browser le permission maagcha");
+    }
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    stopTranscription();
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setRecording(false);
+  }, []);
+
+  function removeAudio() {
+    setAudioBase64(null);
+    setElapsedSeconds(0);
+  }
+
+  function formatTime(seconds: number) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }
+
+  // --- Submit ---
 
   async function handleSubmit() {
     const body = editorRef.current?.innerText?.trim() ?? "";
@@ -73,7 +234,7 @@ export function StoryInput({
     }
     const fullContent = `${title.trim()}\n\n${body}`;
 
-    if (fullContent.length < 10) {
+    if (fullContent.length < 10 && !audioBase64) {
       setError("Ali lambo lekhnus na — kamti ma 10 akshar chaincha");
       return;
     }
@@ -100,14 +261,22 @@ export function StoryInput({
           content: fullContent,
           theme,
           ...(selectedCircle ? { circleId: selectedCircle } : {}),
+          ...(audioBase64 ? { audioBase64 } : {}),
         }),
       });
 
-      const data = await res.json();
+      const raw = await res.text();
+      let data: any = null;
+      try {
+        data = raw ? JSON.parse(raw) : null;
+      } catch {
+        setError("Server bata unexpected response ayo. Feri try garnus.");
+        return;
+      }
 
-      if (!data.success) {
-        setError(data.error);
-        if (data.showResources) setShowResources(true);
+      if (!res.ok || !data?.success) {
+        setError(data?.error || "Request fail bhayo. Feri try garnus.");
+        if (data?.showResources) setShowResources(true);
         return;
       }
 
@@ -118,7 +287,7 @@ export function StoryInput({
         return; // keep modal open to show nudge
       }
 
-      onSubmit(fullContent, theme as ThemeValue);
+      onSubmit(fullContent, theme as ThemeValue, audioBase64 ?? undefined);
       close();
     } catch {
       setError("Server sanga connect huna sakena. Feri try garnus.");
@@ -318,7 +487,68 @@ export function StoryInput({
                 className="hidden"
                 onChange={handleImageInsert}
               />
+
+              <div className="w-px h-4 bg-sand/60 mx-1" />
+
+              {/* Mic button in toolbar */}
+              {!recording && !audioBase64 && (
+                <ToolBtn
+                  onMouseDown={startRecording}
+                  title={lang === "en" ? "Record audio" : "Awaaz record garnus"}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                    <line x1="8" y1="23" x2="16" y2="23" />
+                  </svg>
+                </ToolBtn>
+              )}
+              {recording && (
+                <button
+                  type="button"
+                  onMouseDown={(e) => { e.preventDefault(); stopRecording(); }}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded text-xs text-sindoor font-semibold hover:bg-sindoor/10 transition-colors"
+                >
+                  <span className="w-2 h-2 bg-sindoor rounded-full animate-pulse" />
+                  {formatTime(elapsedSeconds)} — Roka
+                </button>
+              )}
             </div>
+
+            {/* Audio preview inside modal */}
+            {audioBase64 && !recording && (
+              <div className="flex items-center gap-2 px-5 py-2 border-b border-sand/30 bg-feedBg/40">
+                <div className="flex-1 min-w-0">
+                  <AudioPlayer src={audioBase64} compact />
+                </div>
+                <button
+                  type="button"
+                  onClick={removeAudio}
+                  title="Audio hataunus"
+                  className="w-6 h-6 flex items-center justify-center rounded-full bg-sand/40 text-textMuted hover:bg-sindoor/15 hover:text-sindoor transition-colors text-sm leading-none shrink-0"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+            {/* Transcription / mic hints */}
+            {(transcribing || transcriptHint || micError) && (
+              <div className="px-5 py-1.5 border-b border-sand/30 bg-feedBg/30">
+                {transcribing && (
+                  <span className="text-[11px] text-himalayan font-medium">
+                    Auto-transcript chaliracha...
+                  </span>
+                )}
+                {transcriptHint && (
+                  <span className="text-[11px] text-textMuted">{transcriptHint}</span>
+                )}
+                {micError && (
+                  <span className="text-[11px] text-sindoor">{micError}</span>
+                )}
+              </div>
+            )}
 
             {/* Rich text editor */}
             <div
@@ -375,20 +605,25 @@ export function StoryInput({
             )}
 
             {/* Footer */}
-            <div className="flex items-center justify-end gap-3 px-5 py-4">
-              <button
-                onClick={close}
-                className="text-xs text-textMuted hover:text-ink font-sans transition-colors"
-              >
-                Chodnus
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="bg-ink text-pageBg rounded-full px-5 py-2 text-xs font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity"
-              >
-                {submitting ? "Pathaaudai..." : "Share gara"}
-              </button>
+            <div className="flex items-center justify-between px-5 py-4">
+              <span className="text-[9px] text-textMuted">
+                {audioBase64 ? (lang === "en" ? "audio attached" : "audio jodiyeko") : ""}
+              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={close}
+                  className="text-xs text-textMuted hover:text-ink font-sans transition-colors"
+                >
+                  Chodnus
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className="bg-ink text-pageBg rounded-full px-5 py-2 text-xs font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity"
+                >
+                  {submitting ? "Pathaaudai..." : "Share gara"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

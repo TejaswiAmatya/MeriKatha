@@ -4,6 +4,7 @@ import type { Story } from '../../types/feed'
 import { circles, relativeTime } from '../../data/mockStories'
 import { useLang, translationCache } from '../../context/LangContext'
 import { useAuth } from '../../context/AuthContext'
+import { AudioPlayer } from '../ui/AudioPlayer'
 
 const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
 
@@ -121,6 +122,14 @@ export function PostCard({ story, onDelete }: { story: Story; onDelete?: (id: st
         <h3 className={`font-serif font-bold text-[15px] text-ink leading-tight mt-1.5 line-clamp-2 group-hover:text-sindoor transition-colors ${translating ? 'animate-pulse opacity-60' : ''}`}>
           {displayTitle}
         </h3>
+
+        {/* Audio player */}
+        {story.audioBase64 && (
+          <div className="mt-1.5" onClick={(e) => e.preventDefault()}>
+            <AudioPlayer src={story.audioBase64} />
+          </div>
+        )}
+
         <p className={`text-xs text-textBody leading-relaxed mt-1 line-clamp-3 ${translating ? 'animate-pulse opacity-60' : ''}`}>
           {translating ? 'Anuvad gardai...' : displayBody}
         </p>

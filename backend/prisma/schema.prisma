@@ -44,12 +44,12 @@ model CircleMember {
 model Story {
   id          String    @id @default(cuid())
   content     String
+  audioBase64 String?                         // base64-encoded audio (webm/ogg, max 2min)
   isAnonymous Boolean   @default(true)
   status      String    @default("APPROVED") // APPROVED | DELETED
   flagCode    String?                         // CRISIS_CONTENT | ABUSIVE_CONTENT
   theme       String    @default("general")
   circleId    String    @default("SathiCircle")
-  audioBase64 String?
   userId      String?
   user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   suneinCount Int       @default(0)
