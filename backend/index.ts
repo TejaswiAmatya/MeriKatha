@@ -1,4 +1,5 @@
 // Must be set before any TLS connections (dev with Supabase pooler)
+import 'dotenv/config'
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 import 'dotenv/config'
