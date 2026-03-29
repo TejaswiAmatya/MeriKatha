@@ -1,9 +1,7 @@
-import { useNavigate } from 'react-router-dom'
-import { useLang } from '../../context/LangContext'
+import { useNavigate } from "react-router-dom";
 
 export function DiyoBaln() {
-  const navigate = useNavigate()
-  const { lang } = useLang()
+  const navigate = useNavigate();
 
   return (
     <div className="bg-cardWhite border border-sand rounded-xl p-4">
@@ -17,16 +15,18 @@ export function DiyoBaln() {
 
       {/* Big diyo button */}
       <button
-        onClick={() => navigate('/diyo')}
+        onClick={() => navigate("/diyo")}
         className="relative w-full rounded-xl p-6 text-center cursor-pointer overflow-hidden bg-feedBg border border-transparent hover:border-amber-300 hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(217,119,6,0.2)] transition-all duration-300 group"
       >
         <span className="absolute inset-0 rounded-xl bg-[radial-gradient(ellipse_at_center,rgba(217,119,6,0.06)_0%,transparent_70%)] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        <span className="text-6xl inline-block diyo-idle relative z-10">🪔</span>
+        <span className="text-6xl inline-block leading-none diyo-idle relative z-10">
+          🪔
+        </span>
 
-        <div className="relative z-10 mt-4">
+        <div className="relative z-10 mt-2">
           <p className="text-[11px] text-textMuted group-hover:text-amber-600 transition-colors duration-300">
-            {lang === 'en' ? 'Light a Diyo — find your affirmation' : 'Diyo baln — affirmation paunus'}
+            Light a diyo
           </p>
         </div>
       </button>
@@ -44,5 +44,5 @@ export function DiyoBaln() {
         }
       `}</style>
     </div>
-  )
+  );
 }

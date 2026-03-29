@@ -11,120 +11,144 @@ const SEED_COUNT = 4;
 
 const DIYOS = [
   {
-    id: "chedchhad",
-    label: "छेडछाड",
-    sublabel: "Sexual Harassment",
+    id: "sexual-harassment",
+    label: "Sexual harassment",
     affirmations: [
       {
-        id: "c1",
+        id: "sh1",
         text: "Timro galti hoina — kabhi thiena. Timi brave chau bolna sakera.",
         author: "Sita, Kathmandu",
       },
       {
-        id: "c2",
+        id: "sh2",
         text: "Timilai vishwas garchhu. Timro awaz matter garchha.",
         author: "Priya, Virginia",
       },
       {
-        id: "c3",
+        id: "sh3",
         text: "Jo bhayo tyo timro parichay hoina. Timi usko bhanda badi ho.",
         author: "Anita, Pokhara",
       },
       {
-        id: "c4",
+        id: "sh4",
         text: "Bolna saknu nai himmat ho. Proud chhu timilai.",
         author: "Maya, New York",
       },
     ] as Affirmation[],
-    pos: { top: "15%", left: "28%" },
+    pos: { top: "14%", left: "16%" },
     rotate: "-6deg",
   },
   {
-    id: "society",
-    label: "समाजको बोझ",
-    sublabel: "Society Pressure",
+    id: "postpartum",
+    label: "Postpartum",
     affirmations: [
       {
-        id: "s1",
-        text: "Timro life timro definition ho. Kasaiko expectations timhro story hoina.",
-        author: "Deepa, London",
-      },
-      {
-        id: "s2",
-        text: "Log ke sochcha — tyo timle control garna sakdinas, ani garna pardaina pani.",
-        author: "Rima, Kathmandu",
-      },
-      {
-        id: "s3",
-        text: "Samaj ko mold ma fit huna pardaina. Timi afai ek mold ho.",
-        author: "Sunita, Texas",
-      },
-      {
-        id: "s4",
-        text: "Afno pace ma hidnu thik ho. Timro khushi ko permission kasaile dina hudaina.",
-        author: "Puja, Melbourne",
-      },
-    ] as Affirmation[],
-    pos: { top: "13%", left: "58%" },
-    rotate: "5deg",
-  },
-  {
-    id: "naya-aama",
-    label: "नयाँ आमाको मन",
-    sublabel: "Naya Aama",
-    affirmations: [
-      {
-        id: "n1",
+        id: "pp1",
         text: "Ramri aama banna lai perfect huna pardaina. Timi afaile enough ho.",
         author: "Kamala, Lalitpur",
       },
       {
-        id: "n2",
+        id: "pp2",
         text: "Rest linu galat hoina — timro baby lai healthy aama chahieko ho.",
         author: "Binita, Canada",
       },
       {
-        id: "n3",
+        id: "pp3",
         text: "Help maagna weakness hoina, wisdom ho. Sab aama help maagchhan.",
         author: "Sabina, Chitwan",
       },
       {
-        id: "n4",
+        id: "pp4",
         text: "Timro feelings real chan, valid chan. Koi judge gardaina yahaan.",
         author: "Laxmi, Sydney",
       },
     ] as Affirmation[],
-    pos: { top: "63%", left: "28%" },
+    pos: { top: "14%", left: "42%" },
+    rotate: "4deg",
+  },
+  {
+    id: "domestic",
+    label: "Domestic",
+    affirmations: [
+      {
+        id: "d1",
+        text: "Timro safety ra peace matter garchha. Timi akelo hoina.",
+        author: "Rupa, Boston",
+      },
+      {
+        id: "d2",
+        text: "Boundaries rakhnu self-respect ho, rude hoina.",
+        author: "Mina, Kathmandu",
+      },
+      {
+        id: "d3",
+        text: "Bhitra ko jhagada le timro worth decide gardaina.",
+        author: "Sneha, Dallas",
+      },
+      {
+        id: "d4",
+        text: "Reach out garnu — kasaiko haat ma basna pardaina.",
+        author: "Isha, Melbourne",
+      },
+    ] as Affirmation[],
+    pos: { top: "14%", left: "68%" },
     rotate: "-3deg",
   },
   {
-    id: "mann-bechain",
-    label: "मन बेचैन",
-    sublabel: "Anxiety",
+    id: "career-pressure",
+    label: "Career pressure",
     affirmations: [
       {
-        id: "m1",
-        text: "Ek breath — bas ek breath. Yo moment bitchha, timi strong chau.",
-        author: "Anjali, Bhaktapur",
+        id: "cp1",
+        text: "Timro life timro definition ho. Kasaiko expectations timro story hoina.",
+        author: "Deepa, London",
       },
       {
-        id: "m2",
-        text: "Chinta le define gardaina timilai. Timro bhanda badi timro katha cha.",
+        id: "cp2",
+        text: "Log ke sochcha — tyo timle control garna sakdinas, ani garna pardaina pani.",
+        author: "Rima, Kathmandu",
+      },
+      {
+        id: "cp3",
+        text: "Promotion nai sabai hoina — timro pace pani career ho.",
+        author: "Sunita, Texas",
+      },
+      {
+        id: "cp4",
+        text: "Afno pace ma hidnu thik ho. Timro khushi ko permission kasaile dina hudaina.",
+        author: "Puja, Melbourne",
+      },
+    ] as Affirmation[],
+    pos: { top: "56%", left: "27%" },
+    rotate: "5deg",
+  },
+  {
+    id: "diaspora",
+    label: "Diaspora",
+    affirmations: [
+      {
+        id: "di1",
+        text: "Dui thau ko mann — dui sides ko strength ho. Timi afno place banauchan.",
         author: "Nisha, Seattle",
       },
       {
-        id: "m3",
-        text: "Bistarai — koi rush chhaina. Aafu sanga gentle hunu thik ho.",
+        id: "di2",
+        text: "Ghar tada bhaye pani, aafu sanga hunu ghar jasto ho.",
+        author: "Anjali, Bhaktapur",
+      },
+      {
+        id: "di3",
+        text: "Accent ra identity ko story timro power ho.",
         author: "Saru, Biratnagar",
       },
       {
-        id: "m4",
-        text: "Timro pace nai thik pace ho. Aaja ko lagi yeti pugcha.",
+        id: "di4",
+        text: "Missing lagcha — tyo maya ko sign ho, weakness hoina.",
         author: "Kriti, Toronto",
       },
     ] as Affirmation[],
-    pos: { top: "61%", left: "58%" },
-    rotate: "8deg",
+    pos: { top: "56%", left: "63%" },
+    rotate: "-5deg",
   },
 ];
 
@@ -340,7 +364,7 @@ export function Diyo() {
           <button
             key={diyo.id}
             onClick={() => handleDiyoClick(diyo)}
-            className="absolute z-10 flex flex-col items-center gap-2 cursor-pointer group"
+            className="absolute z-10 flex flex-col items-center gap-0 cursor-pointer group"
             style={{
               top: diyo.pos.top,
               left: diyo.pos.left,
@@ -348,7 +372,7 @@ export function Diyo() {
             }}
           >
             <span
-              className={`inline-block ${
+              className={`inline-block leading-none ${
                 isActive
                   ? "diyo-flame-active scale-110"
                   : isOther
@@ -357,8 +381,7 @@ export function Diyo() {
               }`}
               style={{
                 fontSize,
-                filter:
-                  isActive || isOther ? undefined : getDiyoGlow(diyo.id),
+                filter: isActive || isOther ? undefined : getDiyoGlow(diyo.id),
                 transition:
                   "font-size 0.9s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s ease, transform 0.5s ease",
               }}
@@ -366,7 +389,7 @@ export function Diyo() {
               🪔
             </span>
             <span
-              className={`text-xl font-semibold leading-tight text-center max-w-[140px] transition-all duration-500 ${
+              className={`text-base sm:text-lg font-normal leading-tight text-center max-w-[min(160px,28vw)] transition-all duration-500 ${
                 isActive
                   ? "text-amber-300"
                   : isOther
@@ -375,17 +398,6 @@ export function Diyo() {
               }`}
             >
               {diyo.label}
-            </span>
-            <span
-              className={`text-sm leading-none text-center max-w-[140px] transition-all duration-500 ${
-                isActive
-                  ? "text-amber-600/70"
-                  : isOther
-                    ? "opacity-0"
-                    : "text-[#6a5848] group-hover:text-amber-600/60"
-              }`}
-            >
-              {diyo.sublabel}
             </span>
             {/* Affirmation count badge */}
             {!anyActive && extraPerDiyo[diyo.id] > 0 && (
@@ -408,11 +420,8 @@ export function Diyo() {
         <div className="bg-gradient-to-b from-[#3a2a0e] to-[#261c08] border-2 border-amber-600/70 rounded-2xl overflow-hidden shadow-[0_8px_48px_rgba(217,119,6,0.45),inset_0_0_40px_rgba(217,119,6,0.08)]">
           {/* Card header */}
           <div className="bg-gradient-to-r from-[#4a3010] to-[#3a2408] px-5 py-4 flex items-center justify-between border-b-2 border-amber-600/70">
-            <span className="text-base font-semibold text-amber-200 flex items-center gap-2">
+            <span className="text-base font-normal text-amber-200">
               🪔 {msgDiyo?.label}
-              <span className="text-amber-400 font-normal text-sm">
-                — {msgDiyo?.sublabel}
-              </span>
             </span>
             <button
               onClick={handleClose}
@@ -425,7 +434,7 @@ export function Diyo() {
           {/* Affirmations list */}
           <div className="px-5 pt-4 pb-2 max-h-[260px] overflow-y-auto flex flex-col gap-3 scrollbar-thin">
             {currentAffirmations.length === 0 && (
-              <p className="text-center text-amber-500/80 text-sm py-4 italic">
+              <p className="text-center text-amber-500/80 text-sm py-4 font-normal font-sans">
                 Pahilo affirmation timi lekhnus — diyera suru garnus 🪔
               </p>
             )}
@@ -434,8 +443,8 @@ export function Diyo() {
                 key={aff.id}
                 className="bg-[#3a2808] border border-[#5a3e10] rounded-xl px-4 py-3"
               >
-                <p className="text-sm text-amber-100 leading-relaxed italic font-serif">
-                  "{aff.text}"
+                <p className="text-sm text-amber-100 leading-relaxed font-normal font-sans">
+                  {aff.text}
                 </p>
               </div>
             ))}
@@ -444,7 +453,7 @@ export function Diyo() {
 
           {/* Write your affirmation */}
           <div className="px-5 pt-2 pb-4 border-t border-[#5a3e10] mt-2">
-            <p className="text-sm text-amber-400 mb-2">
+            <p className="text-sm text-amber-400 mb-2 font-normal font-sans">
               Timi pani affirmation lekhnus — arko lai help garchha 🕯
             </p>
             <textarea
@@ -453,16 +462,16 @@ export function Diyo() {
               placeholder="Aafno mann le ke bhancha… (Nenglish ma thik cha)"
               maxLength={200}
               rows={2}
-              className="w-full bg-[#2a1e08] border border-[#6a4a18] rounded-xl px-3 py-2.5 text-sm text-amber-100 placeholder:text-amber-400/80 resize-none focus:outline-none focus:border-amber-500 transition-colors"
+              className="w-full bg-[#2a1e08] border border-[#6a4a18] rounded-xl px-3 py-2.5 text-sm font-normal font-sans text-amber-100 placeholder:text-amber-400/80 resize-none focus:outline-none focus:border-amber-500 transition-colors"
             />
             <div className="flex items-center justify-between mt-2">
-              <span className="text-xs text-amber-600/80">
+              <span className="text-xs text-amber-600/80 font-normal">
                 {newText.length}/200
               </span>
               <button
                 onClick={handlePost}
                 disabled={!newText.trim() || posting}
-                className="px-4 py-1.5 rounded-lg text-sm font-semibold bg-amber-700/50 text-amber-200 border border-amber-600/60 hover:bg-amber-600/70 hover:text-amber-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                className="px-4 py-1.5 rounded-lg text-sm font-normal bg-amber-700/50 text-amber-200 border border-amber-600/60 hover:bg-amber-600/70 hover:text-amber-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
               >
                 {posting ? "Pathaidai…" : "Pathau 🪔"}
               </button>
