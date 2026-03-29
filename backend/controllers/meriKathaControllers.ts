@@ -8,10 +8,24 @@ import { checkStoryContent } from "../src/storyContentCheck";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-export const getStories = async (_req: Request, res: Response) => {
+const VALID_THEMES = [
+  "harassment",
+  "postpartum",
+  "domestic",
+  "career",
+  "diaspora",
+  "general",
+] as const;
+
+export const getStories = async (req: Request, res: Response) => {
+  const themeParam = req.query.theme as string | undefined;
+  const theme =
+    themeParam && (VALID_THEMES as readonly string[]).includes(themeParam)
+      ? themeParam
+      : undefined;
   try {
     const stories = await prisma.story.findMany({
-      where: { status: "APPROVED" },
+      where: { status: "APPROVED", ...(theme ? { theme } : {}) },
       orderBy: { createdAt: "desc" },
       take: 50,
       include: { _count: { select: { comments: true } } },
@@ -36,20 +50,16 @@ export const setStories = async (req: Request, res: Response) => {
     });
   }
 
+  const userId = req.user?.sub ?? null;
+
   try {
     const { content } = parsed.data;
     const check = checkStoryContent(content);
 
     if (!check.ok) {
-      // Save flagged story for review, mark as DELETED
       await prisma.story.create({
-        data: {
-          ...parsed.data,
-          status: "DELETED",
-          flagCode: check.code,
-        },
+        data: { ...parsed.data, status: "DELETED", flagCode: check.code, userId },
       });
-
       return res.status(422).json({
         success: false,
         data: null,
@@ -60,22 +70,33 @@ export const setStories = async (req: Request, res: Response) => {
     }
 
     const story = await prisma.story.create({
-      data: {
-        ...parsed.data,
-        status: "APPROVED",
-      },
+      data: { ...parsed.data, status: "APPROVED", userId },
     });
-    res.status(201).json({
-      success: true,
-      data: story,
-      flags: check.flags,
-    });
+    res.status(201).json({ success: true, data: story, flags: check.flags });
   } catch {
     res.status(500).json({
       success: false,
       data: null,
       error: "Kei bhayo yaar, feri try garna hai",
     });
+  }
+};
+
+export const deleteStory = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  const userId = req.user!.sub;
+  try {
+    const story = await prisma.story.findFirst({ where: { id, status: "APPROVED" } });
+    if (!story) {
+      return res.status(404).json({ success: false, data: null, error: "Yo katha fhelaparena." });
+    }
+    if (story.userId !== userId) {
+      return res.status(403).json({ success: false, data: null, error: "Yo timi ko katha hoina." });
+    }
+    await prisma.story.delete({ where: { id } });
+    res.json({ success: true, data: null });
+  } catch {
+    res.status(500).json({ success: false, data: null, error: "Kei bhayo yaar, feri try garna hai" });
   }
 };
 
@@ -98,8 +119,8 @@ export const suneinStory = async (req: Request, res: Response) => {
 };
 
 export const getTrending = async (_req: Request, res: Response) => {
-  const sevenDaysAgo = new Date()
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   try {
     const stories = await prisma.story.findMany({
       where: { status: "APPROVED", createdAt: { gte: sevenDaysAgo } },

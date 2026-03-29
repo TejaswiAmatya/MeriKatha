@@ -3,6 +3,7 @@ import {
   getStories,
   setStories,
   suneinStory,
+  deleteStory,
   getTrending,
   getComments,
   createComment,
@@ -10,6 +11,7 @@ import {
   suneinComment,
   translateText,
 } from "../controllers/meriKathaControllers";
+import { requireAuth } from "../middleware/auth";
 
 const meriKathaRouter = express.Router();
 
@@ -115,7 +117,7 @@ meriKathaRouter.get("/stories", getStories);
  *                   type: string
  *                   example: "Kei bhayo yaar, feri try garna hai"
  */
-meriKathaRouter.post("/stories", setStories);
+meriKathaRouter.post("/stories", requireAuth, setStories);
 
 /**
  * @swagger
@@ -166,6 +168,7 @@ meriKathaRouter.post("/stories", setStories);
  *                   example: "Yo katha ferina — sायद delete bhaisakyo"
  */
 meriKathaRouter.post("/stories/:id/sunein", suneinStory);
+meriKathaRouter.delete("/stories/:id", requireAuth, deleteStory);
 
 meriKathaRouter.get("/stories/trending", getTrending);
 meriKathaRouter.get("/stories/:id/comments", getComments);
