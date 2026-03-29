@@ -261,15 +261,16 @@ export const translateText = async (req: Request, res: Response) => {
   }
 
   try {
+    const { text, targetLang } = parsed.data;
+    const prompt =
+      targetLang === "en"
+        ? `Translate the following Nepali or Nepali-English mixed text to natural, warm English. Preserve the emotional tone. Return ONLY the translated text — no explanations, no quotes, no labels.\n\n${text}`
+        : `Translate the following English text to natural spoken Nepali (Devanagari script). Use conversational Nepali, not formal/literary. Preserve the emotional tone. Return ONLY the translated text — no explanations, no quotes, no labels.\n\n${text}`;
+
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: `Translate the following Nepali or Nepali-English mixed text to natural, warm English. Return ONLY the translated text — no explanations, no quotes, no labels.\n\n${parsed.data.text}`,
-        },
-      ],
+      messages: [{ role: "user", content: prompt }],
     });
 
     const block = message.content[0];
