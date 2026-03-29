@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom'
+import { useLang } from '../../context/LangContext'
 
 export function DiyoBaln() {
   const navigate = useNavigate()
+  const { lang } = useLang()
 
   return (
     <div className="bg-cardWhite border border-sand rounded-xl p-4">
@@ -24,7 +26,7 @@ export function DiyoBaln() {
 
         <div className="relative z-10 mt-4">
           <p className="text-[11px] text-textMuted group-hover:text-amber-600 transition-colors duration-300">
-            Diyo baln — affirmation paunus
+            {lang === 'en' ? 'Light a Diyo — find your affirmation' : 'Diyo baln — affirmation paunus'}
           </p>
         </div>
       </button>

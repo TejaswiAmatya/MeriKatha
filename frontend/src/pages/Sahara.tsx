@@ -27,7 +27,7 @@ export function Sahara() {
     <div className="min-h-screen bg-pageBg font-sans">
       {/* Header */}
       <header className="sticky top-0 z-40 h-12 bg-pageBg/90 backdrop-blur-sm border-b border-sand flex items-center px-5 gap-3">
-        <Link to="/stories" className="text-textMuted text-xs hover:text-ink transition-colors">
+        <Link to="/feed" className="text-textMuted text-xs hover:text-ink transition-colors">
           ← Farka
         </Link>
         <div className="flex items-center gap-2">

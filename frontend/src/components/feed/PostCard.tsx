@@ -1,17 +1,59 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import type { Story } from '../../types/feed'
+import { circles, relativeTime } from '../../data/mockStories'
+import { useLang, translationCache } from '../../context/LangContext'
+import { useAuth } from '../../context/AuthContext'
 
 const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
-import { circles, relativeTime } from '../../data/mockStories'
 
-export function PostCard({ story }: { story: Story }) {
+async function fetchTranslation(text: string, cacheKey: string): Promise<string> {
+  if (translationCache.has(cacheKey)) return translationCache.get(cacheKey)!
+  const res = await fetch(`${API}/api/translate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ text }),
+  })
+  const data = await res.json()
+  const translated: string = data.success ? data.data.translatedText : text
+  translationCache.set(cacheKey, translated)
+  return translated
+}
+
+export function PostCard({ story, onDelete }: { story: Story; onDelete?: (id: string) => void }) {
+  const { lang } = useLang()
+  const { user } = useAuth()
   const [listened, setListened] = useState(false)
-  const [voted, setVoted] = useState(false)
   const [ripplePos, setRipplePos] = useState<{ x: number; y: number } | null>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const [translatedBody, setTranslatedBody] = useState<string | null>(null)
+  const [translating, setTranslating] = useState(false)
 
   const circle = circles.find((c) => c.id === story.circleId)
-  const voteCount = voted ? story.votes + 1 : story.votes
+
+  useEffect(() => {
+    if (lang !== 'en') return
+    if (translationCache.has(story.id)) {
+      setTranslatedBody(translationCache.get(story.id)!)
+      return
+    }
+    setTranslating(true)
+    fetchTranslation(story.body, story.id)
+      .then(setTranslatedBody)
+      .finally(() => setTranslating(false))
+  }, [lang, story.id, story.body])
+
+  const displayBody = lang === 'en' ? (translatedBody ?? story.body) : story.body
+  const displayTitle =
+    lang === 'en' && translatedBody
+      ? translatedBody.length > 60
+        ? translatedBody.slice(0, 60) + '...'
+        : translatedBody
+      : story.title
 
   async function handleSunein(e: React.MouseEvent<HTMLButtonElement>) {
     if (listened) return
@@ -19,7 +61,6 @@ export function PostCard({ story }: { story: Story }) {
     setRipplePos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
     setListened(true)
     setTimeout(() => setRipplePos(null), 500)
-
     try {
       await fetch(`${API}/api/stories/${story.id}/sunein`, {
         method: 'POST',
@@ -29,6 +70,27 @@ export function PostCard({ story }: { story: Story }) {
       console.error('Error incrementing sunein:', err)
     }
   }
+
+  async function handleDelete(e: React.MouseEvent) {
+    e.preventDefault()
+    if (!confirmDelete) { setConfirmDelete(true); return }
+    setDeleting(true)
+    try {
+      await fetch(`${API}/api/stories/${story.id}`, { method: 'DELETE', credentials: 'include' })
+      onDelete?.(story.id)
+    } catch {
+      setDeleting(false)
+      setConfirmDelete(false)
+    }
+  }
+
+  const isOwner = !!user && story.userId === user.userId
+
+  useEffect(() => {
+    if (!confirmDelete) return
+    const t = setTimeout(() => setConfirmDelete(false), 3000)
+    return () => clearTimeout(t)
+  }, [confirmDelete])
 
   return (
     <article className="bg-pageBg rounded-xl border border-sand p-3 hover:border-textMuted transition-colors duration-150">
@@ -54,15 +116,15 @@ export function PostCard({ story }: { story: Story }) {
         )}
       </div>
 
-      {/* Title */}
-      <h3 className="font-serif font-bold text-[15px] text-ink leading-tight mt-1.5 line-clamp-2">
-        {story.title}
-      </h3>
-
-      {/* Body preview */}
-      <p className="text-xs text-textBody leading-relaxed mt-1 line-clamp-3">
-        {story.body}
-      </p>
+      {/* Clickable content area → story detail */}
+      <Link to={`/feed/${story.id}`} state={{ story }} className="block group">
+        <h3 className={`font-serif font-bold text-[15px] text-ink leading-tight mt-1.5 line-clamp-2 group-hover:text-sindoor transition-colors ${translating ? 'animate-pulse opacity-60' : ''}`}>
+          {displayTitle}
+        </h3>
+        <p className={`text-xs text-textBody leading-relaxed mt-1 line-clamp-3 ${translating ? 'animate-pulse opacity-60' : ''}`}>
+          {translating ? 'Anuvad gardai...' : displayBody}
+        </p>
+      </Link>
 
       {/* Tags */}
       {story.tags.length > 0 && (
@@ -76,45 +138,51 @@ export function PostCard({ story }: { story: Story }) {
       )}
 
       {/* Action bar */}
-      <div className="flex items-center gap-1.5 mt-2">
-        {/* Vote */}
-        <button
-          onClick={() => setVoted((v) => !v)}
-          className="flex items-center gap-1 bg-feedBg rounded-full px-2.5 py-1 text-xs font-semibold text-ink hover:bg-sand/50 transition-colors"
+      <div className="flex items-center gap-2 mt-2 flex-wrap" onClick={(e) => e.preventDefault()}>
+        <Link
+          to={`/feed/${story.id}`}
+          state={{ story }}
+          className="flex items-center gap-1 bg-feedBg rounded-full px-2.5 py-1 text-xs text-textBody hover:bg-sand/50 transition-colors"
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M7 2L12 8H2L7 2Z" fill={voted ? '#C0392B' : '#9A7B5A'} />
-          </svg>
-          {voteCount}
-        </button>
-
-        {/* Comments */}
-        <button className="flex items-center gap-1 bg-feedBg rounded-full px-2.5 py-1 text-xs text-textBody hover:bg-sand/50 transition-colors">
           <span className="text-sm">💬</span>
           {story.comments}
-        </button>
+        </Link>
 
-        {/* Maile Sunein */}
         <button
           ref={btnRef}
+          type="button"
           onClick={handleSunein}
-          className={`relative overflow-hidden rounded-full px-3 py-1 text-[10px] font-semibold flex items-center gap-1 transition-colors ${
-            listened ? 'bg-ink text-pageBg' : 'bg-ink text-pageBg hover:opacity-90'
+          className={`relative overflow-hidden rounded-full px-3 py-1 text-[10px] font-semibold flex items-center gap-1 transition-colors shrink-0 shadow-sm border border-himalayan/20 ${
+            listened
+              ? 'bg-himalayan/85 text-pageBg'
+              : 'bg-himalayan text-pageBg hover:bg-himalayan/90 active:bg-himalayan/95'
           }`}
         >
           {ripplePos && (
             <span
-              className="absolute w-4 h-4 bg-sindoor/40 rounded-full animate-ripple pointer-events-none"
+              className="absolute w-4 h-4 bg-pageBg/35 rounded-full animate-ripple pointer-events-none"
               style={{ left: ripplePos.x - 8, top: ripplePos.y - 8 }}
             />
           )}
-          {listened ? 'सुनिएको ✓' : '🙏 Maile Sunein'}
+          {listened
+            ? (lang === 'en' ? 'Heard ✓' : 'सुनिएको ✓')
+            : (lang === 'en' ? '🙏 I Heard You' : '🙏 Maile Sunein')}
         </button>
 
-        {/* Share */}
-        <button className="flex items-center gap-1 bg-feedBg rounded-full px-2.5 py-1 text-xs text-textBody hover:bg-sand/50 transition-colors ml-auto">
-          ↗ Share
-        </button>
+        {isOwner && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className={`ml-auto flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold transition-colors disabled:opacity-40 ${
+              confirmDelete
+                ? 'bg-sindoor/10 text-sindoor border border-sindoor/30'
+                : 'text-textMuted hover:text-sindoor hover:bg-sindoor/10'
+            }`}
+          >
+            {deleting ? '…' : confirmDelete ? (lang === 'en' ? 'Sure?' : 'Pakka?') : '🗑'}
+          </button>
+        )}
       </div>
     </article>
   )

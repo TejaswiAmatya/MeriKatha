@@ -1,10 +1,10 @@
 import type { Circle, Flair, Story } from '../types/feed'
 
 export const circles: Circle[] = [
-  { id: 'NayaAama',     name: 'नया आमा',     initial: 'न', color: 'bg-himalayan' },
-  { id: 'Pardesh',      name: 'परदेश',        initial: 'प', color: 'bg-maroon' },
-  { id: 'SathiCircle',  name: 'साथी',         initial: 'स', color: 'bg-marigold' },
-  { id: 'PadhneBahini', name: 'पढ्ने बहिनी', initial: 'ब', color: 'bg-sindoor' },
+  { id: 'NayaAama',     name: 'नया आमा',     enName: 'New Mothers',    initial: 'न', color: 'bg-himalayan', slug: 'naya-aama'     },
+  { id: 'Pardesh',      name: 'परदेश',        enName: 'Diaspora',        initial: 'प', color: 'bg-maroon',    slug: 'pardesh'       },
+  { id: 'SathiCircle',  name: 'साथी',         enName: 'Sathi Circle',    initial: 'स', color: 'bg-marigold',  slug: 'sathi'         },
+  { id: 'PadhneBahini', name: 'पढ्ने बहिनी', enName: 'Career Sisters',  initial: 'ब', color: 'bg-sindoor',   slug: 'padhne-bahini' },
 ]
 
 export const flairs: Record<string, Flair> = {
@@ -31,6 +31,7 @@ export const mockStories: Story[] = [
     votes: 248,
     comments: 14,
     createdAt: hoursAgo(2),
+    theme: 'domestic',
   },
   {
     id: '2',
@@ -42,6 +43,7 @@ export const mockStories: Story[] = [
     votes: 186,
     comments: 9,
     createdAt: hoursAgo(5),
+    theme: 'career',
   },
   {
     id: '3',
@@ -53,6 +55,7 @@ export const mockStories: Story[] = [
     votes: 134,
     comments: 21,
     createdAt: hoursAgo(8),
+    theme: 'domestic',
   },
   {
     id: '4',
@@ -64,6 +67,7 @@ export const mockStories: Story[] = [
     votes: 97,
     comments: 7,
     createdAt: hoursAgo(12),
+    theme: 'diaspora',
   },
   {
     id: '5',
@@ -75,6 +79,7 @@ export const mockStories: Story[] = [
     votes: 312,
     comments: 28,
     createdAt: hoursAgo(18),
+    theme: 'postpartum',
   },
   {
     id: '6',
@@ -86,6 +91,7 @@ export const mockStories: Story[] = [
     votes: 421,
     comments: 35,
     createdAt: hoursAgo(24),
+    theme: 'diaspora',
   },
 ]
 

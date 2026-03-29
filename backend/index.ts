@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 import swaggerUi from 'swagger-ui-express'
 import authRouter from './routes/auth'
 import meriKathaRouter from './routes/meriKathaRoutes'
+import circleRouter from './routes/circleRoutes'
 import { swaggerSpec } from './config/swagger'
 
 const app = express()
@@ -31,6 +32,7 @@ app.use(cookieParser())
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 app.use('/api/auth', authRouter)
 app.use('/api', meriKathaRouter)
+app.use('/api', circleRouter)
 
 app.get('/', (_req, res) => {
   res.json({ success: true, data: { message: 'MannSathi API — Namaste 🙏' } })

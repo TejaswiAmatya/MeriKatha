@@ -1,14 +1,34 @@
 import { Request, Response } from "express";
+import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "../lib/prisma";
 import { storySchema } from "../schema/storySchema";
+import { commentSchema } from "../schema/commentSchema";
+import { translateSchema } from "../schema/translateSchema";
 import { checkStoryContent } from "../src/storyContentCheck";
 
-export const getStories = async (_req: Request, res: Response) => {
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+const VALID_THEMES = [
+  "harassment",
+  "postpartum",
+  "domestic",
+  "career",
+  "diaspora",
+  "general",
+] as const;
+
+export const getStories = async (req: Request, res: Response) => {
+  const themeParam = req.query.theme as string | undefined;
+  const theme =
+    themeParam && (VALID_THEMES as readonly string[]).includes(themeParam)
+      ? themeParam
+      : undefined;
   try {
     const stories = await prisma.story.findMany({
-      where: { status: "APPROVED" },
+      where: { status: "APPROVED", ...(theme ? { theme } : {}) },
       orderBy: { createdAt: "desc" },
       take: 50,
+      include: { _count: { select: { comments: true } } },
     });
     res.json({ success: true, data: stories });
   } catch {
@@ -30,20 +50,16 @@ export const setStories = async (req: Request, res: Response) => {
     });
   }
 
+  const userId = req.user?.sub ?? null;
+
   try {
     const { content } = parsed.data;
     const check = checkStoryContent(content);
 
     if (!check.ok) {
-      // Save flagged story for review, mark as DELETED
       await prisma.story.create({
-        data: {
-          ...parsed.data,
-          status: "DELETED",
-          flagCode: check.code,
-        },
+        data: { ...parsed.data, status: "DELETED", flagCode: check.code, userId },
       });
-
       return res.status(422).json({
         success: false,
         data: null,
@@ -54,22 +70,33 @@ export const setStories = async (req: Request, res: Response) => {
     }
 
     const story = await prisma.story.create({
-      data: {
-        ...parsed.data,
-        status: "APPROVED",
-      },
+      data: { ...parsed.data, status: "APPROVED", userId },
     });
-    res.status(201).json({
-      success: true,
-      data: story,
-      flags: check.flags,
-    });
+    res.status(201).json({ success: true, data: story, flags: check.flags });
   } catch {
     res.status(500).json({
       success: false,
       data: null,
       error: "Kei bhayo yaar, feri try garna hai",
     });
+  }
+};
+
+export const deleteStory = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  const userId = req.user!.sub;
+  try {
+    const story = await prisma.story.findFirst({ where: { id, status: "APPROVED" } });
+    if (!story) {
+      return res.status(404).json({ success: false, data: null, error: "Yo katha fhelaparena." });
+    }
+    if (story.userId !== userId) {
+      return res.status(403).json({ success: false, data: null, error: "Yo timi ko katha hoina." });
+    }
+    await prisma.story.delete({ where: { id } });
+    res.json({ success: true, data: null });
+  } catch {
+    res.status(500).json({ success: false, data: null, error: "Kei bhayo yaar, feri try garna hai" });
   }
 };
 
@@ -87,6 +114,172 @@ export const suneinStory = async (req: Request, res: Response) => {
       success: false,
       data: null,
       error: "Yo katha ferina — sायद delete bhaisakyo",
+    });
+  }
+};
+
+export const getTrending = async (_req: Request, res: Response) => {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  try {
+    const stories = await prisma.story.findMany({
+      where: { status: "APPROVED", createdAt: { gte: sevenDaysAgo } },
+      orderBy: { suneinCount: "desc" },
+      take: 5,
+      select: { id: true, content: true, suneinCount: true, createdAt: true },
+    });
+    res.json({ success: true, data: stories });
+  } catch {
+    res.status(500).json({
+      success: false,
+      data: null,
+      error: "Kei bhayo yaar, feri try garna hai",
+    });
+  }
+};
+
+export const getComments = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { storyId: id, parentId: null },
+      orderBy: { createdAt: "asc" },
+      include: {
+        replies: { orderBy: { createdAt: "asc" } },
+      },
+    });
+    res.json({ success: true, data: comments });
+  } catch {
+    res.status(500).json({
+      success: false,
+      data: null,
+      error: "Kei bhayo yaar, feri try garna hai",
+    });
+  }
+};
+
+export const createComment = async (req: Request, res: Response) => {
+  const parsed = commentSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      success: false,
+      data: null,
+      error: "Kei lekhnus ta — comment khali huna sakdaina",
+    });
+  }
+
+  const id = req.params.id as string;
+  try {
+    const story = await prisma.story.findFirst({
+      where: { id, status: "APPROVED" },
+      select: { id: true },
+    });
+    if (!story) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        error: "Yo katha fhelaparidena",
+      });
+    }
+
+    if (parsed.data.parentId) {
+      const parent = await prisma.comment.findFirst({
+        where: { id: parsed.data.parentId, storyId: id },
+        select: { id: true },
+      });
+      if (!parent) {
+        return res.status(404).json({
+          success: false,
+          data: null,
+          error: "Parent comment fhelaparidena",
+        });
+      }
+    }
+
+    const comment = await prisma.comment.create({
+      data: {
+        content: parsed.data.content,
+        storyId: id,
+        isAnonymous: true,
+        parentId: parsed.data.parentId ?? null,
+      },
+    });
+    res.status(201).json({ success: true, data: comment });
+  } catch {
+    res.status(500).json({
+      success: false,
+      data: null,
+      error: "Kei bhayo yaar, feri try garna hai",
+    });
+  }
+};
+
+export const likeComment = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  try {
+    const comment = await prisma.comment.update({
+      where: { id },
+      data: { likeCount: { increment: 1 } },
+      select: { id: true, likeCount: true },
+    });
+    res.json({ success: true, data: comment });
+  } catch {
+    res.status(404).json({
+      success: false,
+      data: null,
+      error: "Comment fhelaparidena",
+    });
+  }
+};
+
+export const suneinComment = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  try {
+    const comment = await prisma.comment.update({
+      where: { id },
+      data: { suneinCount: { increment: 1 } },
+      select: { id: true, suneinCount: true },
+    });
+    res.json({ success: true, data: comment });
+  } catch {
+    res.status(404).json({
+      success: false,
+      data: null,
+      error: "Comment fhelaparidena",
+    });
+  }
+};
+
+export const translateText = async (req: Request, res: Response) => {
+  const parsed = translateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      success: false,
+      data: null,
+      error: "text field required",
+    });
+  }
+
+  try {
+    const message = await anthropic.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1024,
+      messages: [
+        {
+          role: "user",
+          content: `Translate the following Nepali or Nepali-English mixed text to natural, warm English. Return ONLY the translated text — no explanations, no quotes, no labels.\n\n${parsed.data.text}`,
+        },
+      ],
+    });
+
+    const block = message.content[0];
+    const translatedText = block.type === "text" ? block.text : "";
+    res.json({ success: true, data: { translatedText } });
+  } catch {
+    res.status(500).json({
+      success: false,
+      data: null,
+      error: "Anuvad garna sakiena — feri try garnus",
     });
   }
 };

@@ -44,12 +44,29 @@ const stories = [
   },
 ];
 
+const circlesData = [
+  { slug: 'naya-aama',     circleId: 'NayaAama',     name: 'New Mothers',    nepaliName: 'नया आमा',     themeAffinity: 'postpartum' },
+  { slug: 'pardesh',       circleId: 'Pardesh',       name: 'Diaspora',       nepaliName: 'परदेश',       themeAffinity: 'diaspora'   },
+  { slug: 'sathi',         circleId: 'SathiCircle',   name: 'Sathi Circle',   nepaliName: 'साथी',        themeAffinity: 'harassment' },
+  { slug: 'padhne-bahini', circleId: 'PadhneBahini',  name: 'Career Sisters', nepaliName: 'पढ्ने बहिनी', themeAffinity: 'career'     },
+]
+
 async function main() {
   console.log("Seeding stories...");
   for (const story of stories) {
     await prisma.story.create({ data: story });
   }
   console.log(`✅ Seeded ${stories.length} stories.`);
+
+  console.log("Seeding circles...");
+  for (const c of circlesData) {
+    await prisma.circle.upsert({
+      where: { slug: c.slug },
+      update: {},
+      create: { ...c, memberCount: 0 },
+    });
+  }
+  console.log(`✅ Seeded ${circlesData.length} circles.`);
 }
 
 main()

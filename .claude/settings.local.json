@@ -16,7 +16,10 @@
       "Bash(python3:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(npx tsc:*)",
+      "Bash(grep -r \"query\\\\|q=\" /Users/abiralshrestha/Documents/WebDev/Projects/MeriKatha/frontend/src --include=*.tsx)",
+      "Bash(npx ts-node:*)"
     ]
   }
 }
