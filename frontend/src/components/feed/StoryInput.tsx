@@ -15,7 +15,7 @@ export function StoryInput({
   open: controlledOpen,
   onOpenChange,
 }: {
-  onSubmit: (text: string, theme: ThemeValue, audioBase64?: string) => void;
+  onSubmit: (story: Record<string, unknown>) => void;
   circleId?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -298,7 +298,7 @@ export function StoryInput({
         return; // keep modal open to show nudge
       }
 
-      onSubmit(fullContent, theme as ThemeValue, audioBase64 ?? undefined);
+      onSubmit(data.data as Record<string, unknown>);
       close();
       navigate("/feed");
     } catch {

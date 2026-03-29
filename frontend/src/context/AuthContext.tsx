@@ -63,7 +63,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function logout() {
-    await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' })
+    try {
+      await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' })
+    } catch {
+      // ignore network errors — clear local state regardless
+    }
     setUser(null)
   }
 

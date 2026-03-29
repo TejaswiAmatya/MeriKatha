@@ -20,7 +20,12 @@
       "Bash(npx tsc:*)",
       "Bash(grep -r \"query\\\\|q=\" /Users/abiralshrestha/Documents/WebDev/Projects/MeriKatha/frontend/src --include=*.tsx)",
       "Bash(npx ts-node:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git push:*)",
+      "Bash(git merge:*)",
+      "Bash(ls -la /Users/tejaswiamatya/Desktop/Gettysburg/Hackathon/MeriKatha/frontend/.env*)",
+      "Bash(ls -la /Users/tejaswiamatya/Desktop/Gettysburg/Hackathon/MeriKatha/.env*)",
+      "Bash(open http://localhost:5173/circles/sathi)"
     ]
   }
 }

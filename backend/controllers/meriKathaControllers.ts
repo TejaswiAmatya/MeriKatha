@@ -288,7 +288,8 @@ export const translateText = async (req: Request, res: Response) => {
     });
     const translatedText = completion.choices[0]?.message?.content ?? "";
     res.json({ success: true, data: { translatedText } });
-  } catch {
+  } catch (err) {
+    console.error('Translate error:', err)
     res.status(500).json({
       success: false,
       data: null,

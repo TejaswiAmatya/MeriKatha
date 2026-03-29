@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 
 type Lang = 'ne' | 'en'
 
@@ -14,6 +14,11 @@ export const translationCache = new Map<string, string>()
 
 export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>('ne')
+
+  useEffect(() => {
+    translationCache.clear()
+  }, [lang])
+
   return (
     <LangContext.Provider value={{ lang, toggle: () => setLang((l) => (l === 'ne' ? 'en' : 'ne')) }}>
       {children}

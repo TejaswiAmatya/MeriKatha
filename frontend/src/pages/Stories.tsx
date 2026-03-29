@@ -88,31 +88,16 @@ export function Stories() {
     setApiStories((prev) => prev.filter((s) => s.id !== id));
   }
 
-  async function handleNewStory(text: string, theme: ThemeValue, audioBase64?: string) {
-    try {
-      const res = await fetch(`${API}/api/stories`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          content: text,
-          theme,
-          ...(audioBase64 ? { audioBase64 } : {}),
-        }),
-      });
-      const json = await res.json();
-      if (json.success) {
-        setApiStories((prev) => [mapApiStory(json.data as ApiStory), ...prev]);
-      }
-    } catch (err) {
-      console.error("Error adding story:", err);
-    }
+  function handleNewStory(story: Record<string, unknown>) {
+    setApiStories((prev) => [mapApiStory(story as unknown as ApiStory), ...prev]);
   }
 
   const filteredMock = activeTheme
     ? mockStories.filter((s) => s.theme === activeTheme)
     : mockStories;
-  const allStories = [...apiStories, ...filteredMock].sort(
+  // Use mock stories only as a fallback — never mix with real API stories
+  const baseStories = apiStories.length > 0 ? apiStories : filteredMock;
+  const allStories = [...baseStories].sort(
     (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
   );
   const stories = isTrending
