@@ -1,8 +1,18 @@
-# Chhaya — Meri Katha API
-
+# Project: CHAYA (TEAM 74)
+# Event: Nepal‑US Hackathon 2026
 A warm space for South Asian women — to share, to feel, and to be heard. No judgment. No login. Just didi energy.
 ---
+# Core Development Team
 
+| **Name** | **Role** | **Key Contributions** | **Expertise** |
+|------------|----------|-----------------------|---------------|
+| [@Abiralstha99] | Lead Developer | Core architecture & backend implementation| Python, Backend Systems, Database Design |
+| [@TejaswiAmatya]| Project Architect | Project initialization, technical strategy & Feature development  | Systems Design, Project Management, Backend |
+| [@La-Lhakpa] | Technical Writer |Feature development & developer guides | Technical Documentation, Frontend, Testing|
+| [@KungaLama] | Full-Stack Engineer | Feature development, bug fixes & performance optimization | Frontend, Backend, Testing |
+| @Rob Basnet | DevOps/Infrastructure | deployment automation & infrastructure management | Docker, Vercel, GitHub Actions |
+
+# Presentation prepared by all team members and Presented by @TejaswiAmatya!
 ## Docker Quickstart
 
 ```bash
@@ -34,7 +44,7 @@ Detailed guide: see [`DOCKER_DEPLOY.md`](./DOCKER_DEPLOY.md).
 - **Share** a short anonymous story (10–500 characters)
 - **Browse** the latest 50 community stories, newest first
 - **Sunein** ("I heard you") a story — a one-tap acknowledgement that replaces likes
-- **comment***("Comment") leave a comment under the story posted
+- **Comment** — leave a comment under a story
 - Completely anonymous — no accounts, no authentication needed
 
 ### 🙏 **Aangan Bot** — Peer Companion Chat
