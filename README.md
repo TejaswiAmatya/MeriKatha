@@ -1,7 +1,6 @@
 # MannSathi — Meri Katha API
 
-A women-first, anonymous story-sharing platform for Nepali women. Share your katha. Be heard. No accounts, no judgement.
-
+A warm space for Nepali women — to share, to feel, and to be heard. No judgment. No login. Just didi energy.
 ---
 
 ## Docker Quickstart
@@ -27,7 +26,37 @@ Detailed guide: see [`DOCKER_DEPLOY.md`](./DOCKER_DEPLOY.md).
 - **Browse** the latest 50 stories from the community
 - **Sunein** ("I heard you") a story — a one-tap acknowledgement that replaces likes
 
-Everything is anonymous. No authentication, no user accounts. The platform is intentionally culturally grounded in Nenglish (Nepali-English codemix) — the language diaspora women actually speak.
+
+---
+### Features 
+
+### 📖 **Meri Katha** — Story Sharing
+- **Share** a short anonymous story (10–500 characters)
+- **Browse** the latest 50 community stories, newest first
+- **Sunein** ("I heard you") a story — a one-tap acknowledgement that replaces likes
+- **comment***("Comment") leave a comment under the story posted
+- Completely anonymous — no accounts, no authentication needed
+
+### 🙏 **Aangan Bot** — Peer Companion Chat
+- **Talk to a caring AI didi** (elder sister) — someone to listen without judgment
+- **Built on Groq LLM** — fast, warm, culturally fluent responses in Nenglish
+- **Mirror your language** — respond in Nepali, English, Hindi, or Nenglish based on how you write
+- **Never gives advice** — only validates feelings and witnesses your experience
+- **No clinical language** — uses Nenglish cultural framing instead of mental health terminology
+- Chat history is kept during your session; completely anonymous
+
+**Backend Endpoint:**
+- `POST /api/bot/chat` — Send message, receive Aangan Bot response
+
+### 🪔 **Diyo** — Light a Virtual Prayer
+- **Light a virtual diyo** (oil lamp) — set a private intention, wish, or fear
+- **Release anonymously** — share your intention on the community prayer wall
+- **See the flame grow** — diyos glow brighter as more affirmations are added
+- Warm, minimal design with flickering flame animations
+
+**Backend Endpoints:**
+- `GET /api/diyos` — Fetch public diyos (newest 30, with affirmations)
+- `POST /api/diyos` — Create a new public diyo
 
 ---
 
@@ -41,6 +70,7 @@ Everything is anonymous. No authentication, no user accounts. The platform is in
 | Database | Supabase (PostgreSQL) |
 | ORM | Prisma 7 (with `@prisma/adapter-pg`) |
 | Validation | Zod 4 |
+| AI / LLM | Groq (for Aangan Bot) |
 | API Docs | Swagger UI (`swagger-jsdoc` + `swagger-ui-express`) |
 | Dev Server | `ts-node-dev` |
 
