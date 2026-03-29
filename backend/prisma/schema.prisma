@@ -11,10 +11,34 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
+  id           String         @id @default(uuid())
+  email        String         @unique
   passwordHash String
-  createdAt    DateTime @default(now())
+  createdAt    DateTime       @default(now())
+  memberships  CircleMember[]
+  stories      Story[]
+}
+
+model Circle {
+  id            String         @id @default(cuid())
+  slug          String         @unique
+  circleId      String         @unique
+  name          String
+  nepaliName    String
+  themeAffinity String
+  memberCount   Int            @default(0)
+  createdAt     DateTime       @default(now())
+  members       CircleMember[]
+}
+
+model CircleMember {
+  userId   String
+  circleId String
+  joinedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  circle   Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, circleId])
 }
 
 model Story {
@@ -23,6 +47,11 @@ model Story {
   isAnonymous Boolean   @default(true)
   status      String    @default("APPROVED") // APPROVED | DELETED
   flagCode    String?                         // CRISIS_CONTENT | ABUSIVE_CONTENT
+  theme       String    @default("general")
+  circleId    String    @default("SathiCircle")
+  audioBase64 String?
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   suneinCount Int       @default(0)
   createdAt   DateTime  @default(now())
   comments    Comment[]
