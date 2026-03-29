@@ -1,5 +1,4 @@
 import type { Story } from "../../types/feed";
-import type { ThemeValue } from "../../data/themes";
 import { PostCard } from "./PostCard";
 import { BentoBlock } from "./BentoBlock";
 import { StoryInput } from "./StoryInput";
@@ -13,7 +12,7 @@ export function FeedList({
   onComposerOpenChange,
 }: {
   stories: Story[];
-  onNewStory: (text: string, theme: ThemeValue, audioBase64?: string) => void;
+  onNewStory: (story: Record<string, unknown>) => void;
   onDelete?: (id: string) => void;
   circleId?: string;
   composerOpen?: boolean;

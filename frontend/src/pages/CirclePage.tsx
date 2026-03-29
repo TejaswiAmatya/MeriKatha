@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import type { Story } from '../types/feed'
-import type { ThemeValue } from '../data/themes'
 import { circles } from '../data/mockStories'
 import { Topbar } from '../components/feed/Topbar'
 import { LeftSidebar } from '../components/feed/LeftSidebar'
@@ -117,19 +116,20 @@ export function CirclePage() {
     setStories((prev) => prev.filter((s) => s.id !== id))
   }
 
-  function handleNewStory(text: string, theme: ThemeValue) {
-    if (!circle) return
+  function handleNewStory(story: Record<string, unknown>) {
+    const content = (story.content as string) ?? ''
+    const theme = (story.theme as string) ?? 'general'
     setStories((prev) => [
       {
-        id: crypto.randomUUID(),
-        circleId: circle.circleId,
-        title: text.length > 60 ? text.slice(0, 60) + '...' : text,
-        body: text,
+        id: (story.id as string) ?? crypto.randomUUID(),
+        circleId: (story.circleId as string) ?? circle?.circleId ?? '',
+        title: content.length > 60 ? content.slice(0, 60) + '...' : content,
+        body: content,
         tags: [],
         flair: null,
         votes: 0,
         comments: 0,
-        createdAt: new Date(),
+        createdAt: new Date((story.createdAt as string) ?? Date.now()),
         theme,
       },
       ...prev,
